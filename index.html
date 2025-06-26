@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API Tester</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
+    <h1 class="text-3xl font-bold mb-4">🧪 API Tester</h1>
+
+    <!-- Request Section -->
+    <div class="flex flex-col md:flex-row gap-2 mb-4">
+      <select id="method" class="border rounded px-3 py-2 w-full md:w-32">
+        <option>GET</option>
+        <option>POST</option>
+        <option>PUT</option>
+        <option>DELETE</option>
+        <option>PATCH</option>
+      </select>
+      <input type="text" id="url" placeholder="https://api.example.com/endpoint"
+             class="flex-1 border rounded px-3 py-2" />
+      <button id="sendBtn"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+        Send
+      </button>
+    </div>
+
+    <!-- Headers Section -->
+    <div class="mb-4">
+      <label class="block text-sm font-semibold mb-2">Headers</label>
+      <div id="headersContainer" class="space-y-2">
+        <!-- Initial Key-Value Row -->
+        <div class="flex gap-2">
+          <input type="text" placeholder="Key"
+                 class="w-1/2 border rounded px-3 py-2 text-sm" />
+          <input type="text" placeholder="Value"
+                 class="w-1/2 border rounded px-3 py-2 text-sm" />
+        </div>
+      </div>
+      <button id="addHeaderBtn"
+              class="mt-2 text-blue-600 text-sm hover:underline">
+        + Add Header
+      </button>
+    </div>
+
+    <!-- Body Section -->
+    <div class="mb-4">
+      <label class="block text-sm font-semibold mb-1">Content Type</label>
+      <select id="contentType" class="border rounded px-3 py-2 w-full mb-2">
+        <option value="application/json">application/json</option>
+        <option value="text/plain">text/plain</option>
+        <option value="application/x-www-form-urlencoded">application/x-www-form-urlencoded</option>
+        <option value="multipart/form-data">multipart/form-data</option>
+      </select>
+      <textarea id="body" rows="5"
+                class="w-full border rounded px-3 py-2 text-sm font-mono"
+                placeholder='{"key": "value"}'></textarea>
+    </div>
+
+    <!-- Response -->
+    <div class="mt-6">
+      <h2 class="text-xl font-semibold mb-2">Response</h2>
+      <div id="responseStatus" class="mb-2 text-sm font-medium text-gray-700"></div>
+      <pre id="responseBody" class="bg-gray-200 p-4 rounded text-sm overflow-auto max-h-96"></pre>
+    </div>
+  </div>
+
+  <!-- JS logic goes in main.js -->
+    <script src="index.js"></script>
+</body>
+</html>
