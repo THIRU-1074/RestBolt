@@ -31,3 +31,11 @@ fetch(proxyUrl + targetUrl)
   .then(console.log);
 ```
 
+Yet to Done:
+
+1. Bulk URL edits
+2. Save requests in local storage
+3. Button to copy response and export as a file
+4. Auth helpers
+5. Timing info
+6. Support binary data (MIME) 
