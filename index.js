@@ -3,26 +3,33 @@ let contentType = undefined;
 let bodyText = undefined;
 let headers = {};
 let res = undefined;
-let headersList = [];
+let headersListObj = {};
+let queryListObj = {};
+let url = undefined;
+let tabId = undefined;
 
-const radioButtons = document.getElementsByName("viewMode");
-const responseBody = document.getElementById("responseBody");
-const responseIframe = document.getElementById("responseIframe");
-const responseStatus = document.getElementById("responseStatus");
-const responseHeaders = document.getElementById("responseHeaders");
+let radioButtons = undefined;
+let responseBody = undefined;
+let responseIframe = undefined;
+let responseStatus = undefined;
+let responseHeaders = undefined;
 
-const headersContainer = document.getElementById("headersContainer");
-const addHeaderBtn = document.getElementById("addHeaderBtn");
-const displayHeaders = document.getElementById("displayHeaders");
+let headersContainer = undefined;
+let addHeaderBtn = undefined;
+let displayHeaders = undefined;
+let displayQueries = undefined;
+let addQueryBtn = undefined;
+
 function collectReqHeaders() {
   // Collect headers
+  let headersList = headersListObj[tabId];
   headers["Access-Control-Allow-Origin"] = "*";
   headers["Access-Control-Allow-Headers"] = "*";
   headers["Access-Control-Expose-Headers"] = "*";
-  headersList.forEach((pair) => {
-    const key = pair.key.trim();
-    const value = pair.value.trim();
-    if (key) headers[key] = value;
+  headersList.forEach(({ key, value, checked }) => {
+    key = key.trim();
+    value = value.trim();
+    if (checked && key) headers[key] = value;
   });
 
   // Set Content-Type header (override if user hasn't already)
@@ -30,6 +37,7 @@ function collectReqHeaders() {
     headers["Content-Type"] = contentType;
   }
 }
+
 function collectReqBody() {
   // Include body if necessary
   if (method !== "GET" && method !== "DELETE" && bodyText) {
@@ -45,6 +53,20 @@ function collectReqBody() {
     }
   }
 }
+function collectReqQuery() {
+  let queryList = queryListObj[tabId];
+  let queryStr = "";
+  queryList.forEach(({ key, value, checked }, index) => {
+    key = key.trim();
+    value = value.trim();
+    if (checked && key) {
+      if (queryStr) queryStr += "&"; // add ampersand if not the first param
+      queryStr += encodeURIComponent(key) + "=" + encodeURIComponent(value);
+    }
+  });
+  url += queryStr ? "?" + queryStr : "";
+}
+
 function setResHeaders(headersObj) {
   // Set headers
   let headersFormatted = "";
@@ -53,6 +75,7 @@ function setResHeaders(headersObj) {
   }
   responseHeaders.textContent = headersFormatted;
 }
+
 async function handleResponse(res) {
   const headersObj = {};
   res.headers.forEach((value, key) => {
@@ -62,9 +85,17 @@ async function handleResponse(res) {
   console.log(headersObj);
   setResHeaders(headersObj);
   const contentType = res.headers.get("content-type") || "";
-  document.getElementById(
-    "responseStatus"
-  ).textContent = `Status: ${res.status} ${res.statusText}`;
+  const responseStatusDiv = document.querySelector(
+    `#${tabId} [data-id="responseStatus"]`
+  );
+  responseStatusDiv.textContent = `Status: ${res.status} ${res.statusText}`;
+  // Set background color based on status code
+  if (res.status >= 200 && res.status < 300) {
+    responseStatusDiv.style.backgroundColor = "lightgreen"; // or "green"
+  } else {
+    responseStatusDiv.style.backgroundColor = "lightcoral"; // or "red"
+  }
+
   // Try to parse response as JSON, fallback to text
   let body;
   if (contentType.includes("application/json")) {
@@ -73,18 +104,23 @@ async function handleResponse(res) {
   } else {
     body = await res.text();
   }
-  document.getElementById("responseBody").textContent = body;
+  document.querySelector(`#${tabId} [data-id="responseBody"]`).textContent =
+    body;
 }
 function getRequestParams() {
-  method = document.getElementById("method").value;
-  url = document.getElementById("url").value.trim();
-  contentType = document.getElementById("contentType").value;
-  bodyText = document.getElementById("body").value.trim();
+  method = document.querySelector(`#${tabId} [data-id="method"]`).value;
+  url = document.querySelector(`#${tabId} [data-id="url"]`).value.trim();
+  contentType = document.querySelector(
+    `#${tabId} [data-id="contentType"]`
+  ).value;
+  bodyText = document.querySelector(`#${tabId} [data-id="body"]`).value.trim();
 }
 async function sendRequest() {
+  setParams();
   getRequestParams();
   collectReqHeaders();
   collectReqBody();
+  collectReqQuery();
   // Prepare fetch options
   const options = {
     method,
@@ -95,11 +131,13 @@ async function sendRequest() {
     res = await fetch(url, options);
     handleResponse(res);
   } catch (err) {
-    document.getElementById("responseStatus").textContent = "Error";
-    document.getElementById("responseBody").textContent = err.toString();
+    document.querySelector(`#${tabId} [data-id="responseStatus"]`).textContent =
+      "Error";
+    document.querySelector(`#${tabId} [data-id="responseBody"]`).textContent =
+      err.toString();
   }
+  headers = {};
 }
-document.getElementById("sendBtn").addEventListener("click", sendRequest);
 
 function renderResponse(status, bodyText) {
   // Set status
@@ -124,30 +162,28 @@ function renderResponse(status, bodyText) {
   }
 }
 
-// Optional: Listen for mode toggle (instant switch without resending)
-radioButtons.forEach((r) => {
-  r.addEventListener("change", () => {
-    // Re-render current data if needed
-    renderResponse(
-      responseStatus.textContent.replace("Status: ", ""),
-      responseBody.textContent
-    );
-  });
-});
+function updateKeyValDisplay(displayContent, List) {
+  displayContent.innerHTML = "";
 
-function updateHeaderDisplay() {
-  displayHeaders.innerHTML = "";
-
-  headersList.forEach((item, index) => {
+  List.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "flex gap-2 items-center";
+
+    // ✅ Checkbox
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = item.checked;
+    checkbox.className = "form-checkbox accent-green-500 w-4 h-4";
+    checkbox.onchange = (e) => {
+      List[index].checked = e.target.checked;
+    };
 
     const keyInput = document.createElement("input");
     keyInput.value = item.key;
     keyInput.placeholder = "Key";
     keyInput.className = "w-1/3 border rounded px-2 py-1 text-sm";
     keyInput.oninput = (e) => {
-      headersList[index].key = e.target.value;
+      List[index].key = e.target.value;
     };
 
     const valueInput = document.createElement("input");
@@ -155,21 +191,21 @@ function updateHeaderDisplay() {
     valueInput.placeholder = "Value";
     valueInput.className = "w-1/3 border rounded px-2 py-1 text-sm";
     valueInput.oninput = (e) => {
-      headersList[index].value = e.target.value;
+      List[index].value = e.target.value;
     };
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "🗑️";
     deleteBtn.className = "text-red-600 text-lg hover:scale-110 transition";
     deleteBtn.onclick = () => {
-      headersList.splice(index, 1);
-      updateHeaderDisplay();
+      List.splice(index, 1);
+      updateKeyValDisplay(displayContent, List);
     };
-
+    row.appendChild(checkbox);
     row.appendChild(keyInput);
     row.appendChild(valueInput);
     row.appendChild(deleteBtn);
-    displayHeaders.appendChild(row);
+    displayContent.appendChild(row);
   });
 }
 function includeHeader(e) {
@@ -181,12 +217,76 @@ function includeHeader(e) {
   const value = allInputs[allInputs.length - 1].value.trim();
 
   if (key === "") return; // avoid blank keys
-
-  headersList.push({ key, value });
-  updateHeaderDisplay();
+  let headersList = headersListObj[tabId];
+  headersList.push({ key, value, checked: true });
+  updateKeyValDisplay(displayHeaders, headersList);
 
   // Clear the inputs
   allInputs[allInputs.length - 2].value = "";
   allInputs[allInputs.length - 1].value = "";
 }
-addHeaderBtn.addEventListener("click", includeHeader);
+
+function includeQuery(e) {
+  e.preventDefault();
+  // Grab the last row inputs from the add section
+  const allInputs = headersContainer.querySelectorAll("input");
+  const key = allInputs[allInputs.length - 2].value.trim();
+  const value = allInputs[allInputs.length - 1].value.trim();
+
+  if (key === "") return; // avoid blank keys
+  let queryList = queryListObj[tabId];
+  queryList.push({ key, value, checked: true });
+  updateKeyValDisplay(displayQueries, queryList);
+
+  // Clear the inputs
+  allInputs[allInputs.length - 2].value = "";
+  allInputs[allInputs.length - 1].value = "";
+}
+
+function setParams() {
+  radioButtons = document.getElementsByName("viewMode");
+  responseBody = document.querySelector(`#${tabId} [data-id="responseBody"]`);
+  responseIframe = document.querySelector(
+    `#${tabId} [data-id="responseIframe"]`
+  );
+  responseStatus = document.querySelector(
+    `#${tabId} [data-id="responseStatus"]`
+  );
+  responseHeaders = document.querySelector(
+    `#${tabId} [data-id="responseHeaders"]`
+  );
+
+  headersContainer = document.querySelector(
+    `#${tabId} [data-id="headersContainer"]`
+  );
+  addHeaderBtn = document.querySelector(`#${tabId} [data-id="addHeaderBtn"]`);
+  displayHeaders = document.querySelector(
+    `#${tabId} [data-id="displayHeaders"]`
+  );
+  displayQueries = document.querySelector(
+    `#${tabId} [data-id="displayQueries"]`
+  );
+  addQueryBtn = document.querySelector(`#${tabId} [data-id="addQueryBtn"]`);
+}
+function activateTab(newTabId) {
+  tabId = newTabId + "Content";
+  headersListObj[tabId] = [];
+  queryListObj[tabId] = [];
+  setParams();
+  console.log(`${tabId}`);
+  // Optional: Listen for mode toggle (instant switch without resending)
+  radioButtons.forEach((r) => {
+    r.addEventListener("change", () => {
+      // Re-render current data if needed
+      renderResponse(
+        responseStatus.textContent.replace("Status: ", ""),
+        responseBody.textContent
+      );
+    });
+  });
+  document
+    .querySelector(`#${tabId} [data-id="sendBtn"]`)
+    .addEventListener("click", sendRequest);
+  addHeaderBtn.addEventListener("click", includeHeader);
+  addQueryBtn.addEventListener("click", includeQuery);
+}

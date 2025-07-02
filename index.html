@@ -7,145 +7,214 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-gray-100 min-h-screen p-6">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
-      <h1 class="text-3xl font-bold mb-4">🧪 API Tester</h1>
-
-      <!-- Request Section -->
-      <div class="flex flex-col md:flex-row gap-2 mb-4">
-        <select id="method" class="border rounded px-3 py-2 w-full md:w-32">
-          <option value="GET">GET</option>
-          <option value="POST">POST</option>
-          <option value="PUT">PUT</option>
-          <option value="DELETE">DELETE</option>
-          <option value="PATCH">PATCH</option>
-        </select>
-        <input
-          type="text"
-          id="url"
-          placeholder="https://api.example.com/endpoint"
-          class="flex-1 border rounded px-3 py-2"
-        />
+    <div class="tabs flex space-x-2 mb-4" id="tabHeaders">
+      <div class="flex items-center space-x-1" data-tab-wrapper="tab1">
         <button
-          id="sendBtn"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+          class="tab px-4 py-2 bg-white rounded-t border border-b-0 flex items-center space-x-2"
+          data-id="tab1"
         >
-          Send
+          <span onclick="renameTab(this)">undefined</span>
+          <span
+            onclick="deleteTab('tab1', event)"
+            class="text-red-400 hover:text-red-600 text-xs ml-1"
+          >
+            ✕
+          </span>
         </button>
       </div>
 
-      <!-- Headers Section -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-2">Headers</label>
-        <div id="headersContainer" class="space-y-2">
-          <!-- Initial Key-Value Row -->
-          <div class="flex gap-2">
-            <input
-              type="text"
-              placeholder="Key"
-              class="w-1/2 border rounded px-3 py-2 text-sm"
-            />
-            <input
-              type="text"
-              placeholder="Value"
-              class="w-1/2 border rounded px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-        <button
-          id="addHeaderBtn"
-          class="mt-2 text-blue-600 text-sm hover:underline"
-        >
-          + Add Header
-        </button>
-      </div>
-
-      <!-- Display Added Headers -->
-      <div class="mt-4">
-        <label class="block text-sm font-semibold mb-2">Current Headers</label>
-
-        <!-- Header row -->
-        <div
-          class="flex justify-between text-sm font-semibold text-gray-700 px-4 py-2 border-b"
-        >
-          <span class="w-1/3">Key</span>
-          <span class="w-1/3">Value</span>
-          <span class="w-1/6 text-right">Action</span>
-        </div>
-
-        <!-- Container for dynamic entries -->
-        <div id="displayHeaders" class="space-y-2 mt-2">
-          <div id="noHeaders" class="text-gray-500 text-sm px-4 py-2 italic">
-            No headers added yet.
-          </div>
-        </div>
-      </div>
-
-      <!-- Body Section -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1">Content Type</label>
-        <select id="contentType" class="border rounded px-3 py-2 w-full mb-2">
-          <option value="application/json">application/json</option>
-          <option value="text/plain">text/plain</option>
-          <option value="application/x-www-form-urlencoded">
-            application/x-www-form-urlencoded
-          </option>
-          <option value="multipart/form-data">multipart/form-data</option>
-        </select>
-        <textarea
-          id="body"
-          rows="5"
-          class="w-full border rounded px-3 py-2 text-sm font-mono"
-          placeholder='{"key": "value"}'
-        ></textarea>
-      </div>
-
-      <!-- Response -->
-      <div class="mt-6">
-        <h2 class="text-xl font-semibold mb-2">Response</h2>
-
-        <!-- Radio buttons -->
-        <div class="mb-4 flex items-center gap-4">
-          <label class="flex items-center">
-            <input
-              type="radio"
-              name="viewMode"
-              value="raw"
-              class="mr-1"
-              checked
-            />
-            Raw
-          </label>
-          <label class="flex items-center">
-            <input type="radio" name="viewMode" value="html" class="mr-1" />
-            HTML
-          </label>
-        </div>
-
-        <!-- Status -->
-        <div
-          id="responseStatus"
-          class="mb-2 text-sm font-medium text-gray-700"
-        ></div>
-
-        <!-- Headers -->
-        <pre
-          id="responseHeaders"
-          class="bg-gray-100 p-3 rounded text-xs text-gray-800 overflow-auto mb-2"
-        ></pre>
-
-        <!-- Body (either raw or iframe) -->
-        <pre
-          id="responseBody"
-          class="bg-gray-200 p-4 rounded text-sm overflow-auto max-h-96"
-        ></pre>
-        <iframe
-          id="responseIframe"
-          class="w-full h-96 border rounded hidden"
-        ></iframe>
-      </div>
+      <button
+        id="addTab"
+        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+      >
+        ＋
+      </button>
     </div>
 
+    <div id="tabContents">
+      <div class="tab-content border rounded-b bg-white p-4" id="tab1Content">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
+          <h1 class="text-3xl font-bold mb-4">🧪 API Tester</h1>
+
+          <!-- Request Section -->
+          <div class="flex flex-col md:flex-row gap-2 mb-4">
+            <select
+              data-id="method"
+              class="border rounded px-3 py-2 w-full md:w-32"
+            >
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+            <input
+              type="text"
+              data-id="url"
+              placeholder="https://api.example.com/endpoint"
+              class="flex-1 border rounded px-3 py-2"
+            />
+            <button
+              data-id="sendBtn"
+              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            >
+              Send
+            </button>
+          </div>
+
+          <!-- Headers Section -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold mb-2"
+              >Key-Value Pair Adder</label
+            >
+            <div data-id="headersContainer" class="space-y-2">
+              <!-- Initial Key-Value Row -->
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Key"
+                  class="w-1/2 border rounded px-3 py-2 text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Value"
+                  class="w-1/2 border rounded px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+            <button
+              data-id="addHeaderBtn"
+              class="mt-2 text-blue-600 text-sm hover:underline"
+            >
+              + Add Header
+            </button>
+            <button
+              data-id="addQueryBtn"
+              class="mt-2 text-blue-600 text-sm hover:underline"
+            >
+              + Add Query
+            </button>
+          </div>
+
+          <!-- Display Added Headers -->
+          <div class="mt-4">
+            <label class="block text-sm font-semibold mb-2"
+              >Current Headers</label
+            >
+
+            <!-- Header row -->
+            <div
+              class="flex justify-between text-sm font-semibold text-gray-700 px-4 py-2 border-b"
+            >
+              <span class="w-1/3">Key</span>
+              <span class="w-1/3">Value</span>
+            </div>
+
+            <!-- Container for dynamic entries -->
+            <div data-id="displayHeaders" class="space-y-2 mt-2">
+              <div
+                data-id="noHeaders"
+                class="text-gray-500 text-sm px-4 py-2 italic"
+              >
+                No headers added yet.
+              </div>
+            </div>
+          </div>
+          <!-- Display Added Queries -->
+          <div class="mt-4">
+            <label class="block text-sm font-semibold mb-2"
+              >Current Queries</label
+            >
+
+            <!-- Query row -->
+            <div
+              class="flex justify-between text-sm font-semibold text-gray-700 px-4 py-2 border-b"
+            >
+              <span class="w-1/3">Key</span>
+              <span class="w-1/3">Value</span>
+            </div>
+
+            <!-- Container for dynamic entries -->
+            <div data-id="displayQueries" class="space-y-2 mt-2">
+              <div
+                data-id="noQueries"
+                class="text-gray-500 text-sm px-4 py-2 italic"
+              >
+                No Queries added yet.
+              </div>
+            </div>
+          </div>
+          <!-- Body Section -->
+          <div class="mb-4">
+            <label class="block text-sm font-semibold mb-1">Content Type</label>
+            <select
+              data-id="contentType"
+              class="border rounded px-3 py-2 w-full mb-2"
+            >
+              <option value="application/json">application/json</option>
+              <option value="text/plain">text/plain</option>
+              <option value="application/x-www-form-urlencoded">
+                application/x-www-form-urlencoded
+              </option>
+              <option value="multipart/form-data">multipart/form-data</option>
+            </select>
+            <textarea
+              data-id="body"
+              rows="5"
+              class="w-full border rounded px-3 py-2 text-sm font-mono"
+              placeholder='{"key": "value"}'
+            ></textarea>
+          </div>
+
+          <!-- Response -->
+          <div class="mt-6">
+            <h2 class="text-xl font-semibold mb-2">Response</h2>
+
+            <!-- Radio buttons -->
+            <div class="mb-4 flex items-center gap-4">
+              <label class="flex items-center">
+                <input
+                  type="radio"
+                  name="viewMode"
+                  value="raw"
+                  class="mr-1"
+                  checked
+                />
+                Raw
+              </label>
+              <label class="flex items-center">
+                <input type="radio" name="viewMode" value="html" class="mr-1" />
+                HTML
+              </label>
+            </div>
+
+            <!-- Status -->
+            <div
+              data-id="responseStatus"
+              class="mb-2 text-sm font-medium text-gray-700"
+            ></div>
+
+            <!-- Headers -->
+            <pre
+              data-id="responseHeaders"
+              class="bg-gray-100 p-3 rounded text-xs text-gray-800 overflow-auto mb-2"
+            ></pre>
+
+            <!-- Body (either raw or iframe) -->
+            <pre
+              data-id="responseBody"
+              class="bg-gray-200 p-4 rounded text-sm overflow-auto max-h-96"
+            ></pre>
+            <iframe
+              data-id="responseIframe"
+              class="w-full h-96 border rounded hidden"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- JS logic goes in main.js -->
     <script src="index.js"></script>
+    <script src="tabs.js"></script>
   </body>
 </html>
