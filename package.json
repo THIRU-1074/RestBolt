@@ -1,0 +1,25 @@
+{
+  "name": "restbolt",
+  "version": "1.0.0",
+  "description": "REST API Testing Site\r https://reqres.in",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/THIRU-1074/RestBolt.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/THIRU-1074/RestBolt/issues"
+  },
+  "homepage": "https://github.com/THIRU-1074/RestBolt#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-fetch": "^3.3.2"
+  }
+}

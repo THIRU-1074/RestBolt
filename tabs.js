@@ -58,7 +58,8 @@ document.getElementById("addTab").addEventListener("click", () => {
 
   // Create tab content
   const tabContent = document.createElement("div");
-  tabContent.className = "tab-content border rounded-b bg-white p-4 hidden";
+  tabContent.className =
+    "tab-content bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 hidden";
   tabContent.id = newTabId + "Content";
   tabContent.innerHTML = defaultContent.innerHTML;
   tabContents.appendChild(tabContent);

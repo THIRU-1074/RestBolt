@@ -22,6 +22,7 @@ let addQueryBtn = undefined;
 
 function collectReqHeaders() {
   // Collect headers
+  addAuth();
   let headersList = headersListObj[tabId];
   headers["Access-Control-Allow-Origin"] = "*";
   headers["Access-Control-Allow-Headers"] = "*";
@@ -154,7 +155,23 @@ function renderResponse(status, bodyText) {
     responseIframe.classList.add("hidden");
   } else {
     // Convert body to blob & object URL to load in iframe
-    const blob = new Blob([bodyText], { type: "text/html" });
+    const fullHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <style>
+        body { padding: 1rem; font-family: sans-serif; }
+        button { margin: 0.5rem; padding: 0.5rem 1rem; }
+      </style>
+    </head>
+    <body>
+      ${bodyText}
+    </body>
+    </html>
+  `;
+    const blob = new Blob([fullHtml], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     responseIframe.src = url;
     responseIframe.classList.remove("hidden");
@@ -267,6 +284,109 @@ function setParams() {
     `#${tabId} [data-id="displayQueries"]`
   );
   addQueryBtn = document.querySelector(`#${tabId} [data-id="addQueryBtn"]`);
+}
+function handleAuthChange() {
+  const value = document.querySelector(`#${tabId} [data-id="authType"]`).value;
+  document.querySelector(
+    `#${tabId} [data-id="basicAuthFields"]`
+  ).style.display = value === "basic" ? "block" : "none";
+  document.querySelector(`#${tabId} [data-id="jwtAuthFields"]`).style.display =
+    value === "jwt" ? "block" : "none";
+  document.querySelector(`#${tabId} [data-id="apiKeyFields"]`).style.display =
+    value === "apikey" ? "block" : "none";
+}
+function handleJWT(jwtDiv) {
+  try {
+    // 1. Read user input
+    const algorithm = jwtDiv.querySelector("select").value;
+    const signature = jwtDiv.querySelector('input[type="text"]').value.trim();
+    const payloadInput = jwtDiv.querySelector("textarea").value.trim();
+    const location = jwtDiv.querySelector(
+      'input[name="jwtLocation"]:checked'
+    ).value;
+
+    // 2. Parse and encode header
+    const header = {
+      alg: algorithm,
+      typ: "JWT",
+    };
+    const encodedHeader = base64UrlEncode(JSON.stringify(header));
+
+    // 3. Parse and encode payload
+    let payload;
+    try {
+      payload = JSON.parse(payloadInput);
+    } catch (err) {
+      alert("Invalid JSON payload");
+      return null;
+    }
+    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+
+    // 4. Encode signature (use user-input as-is for demo)
+    const encodedSignature = base64UrlEncode(signature);
+
+    // 5. Construct JWT
+    const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+
+    // 6. Return object for use in request
+    return { loc: location, token: `Bearer ${jwt}` };
+  } catch (err) {
+    console.error("JWT Handling Error:", err);
+    return null;
+  }
+}
+
+// ✅ Helper function for base64url encoding
+function base64UrlEncode(str) {
+  return btoa(unescape(encodeURIComponent(str)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+function addAuth() {
+  let authObj = retrieveAuth();
+  console.log("here");
+  console.log(authObj);
+  if (authObj == null) return;
+  if (authObj.loc == "query") {
+    queryListObj[tabId].push({
+      key: "access_token",
+      value: authObj.token,
+      checked: true,
+    });
+  } else if (authObj.loc == "header") {
+    headersListObj[tabId].push({
+      key: "Authorization",
+      value: authObj.token,
+      checked: true,
+    });
+  }
+}
+function retrieveAuth() {
+  let authType = document.querySelector(`#${tabId} [data-id="authType"]`).value;
+  let authDiv = undefined;
+  if (authType == "basic") {
+    authDiv = document.querySelector(`#${tabId} [data-id="basicAuthFields"]`);
+    // Get the inputs inside it
+    const username = authDiv.querySelector('input[type="text"]').value;
+    const password = authDiv.querySelector('input[type="password"]').value;
+    const location = authDiv.querySelector(
+      'input[name="basicLocation"]:checked'
+    ).value;
+    return {
+      loc: `${location}`,
+      token: `Basic ${base64UrlEncode(`${username}:${password}`)}`,
+    };
+  } else if (authType == "jwt") {
+    return handleJWT(authDiv);
+  } else return null;
+}
+function copyResponse() {
+  const text = responseBody.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    console.log("Copied!");
+    // Optionally show a toast or tooltip
+  });
 }
 function activateTab(newTabId) {
   tabId = newTabId + "Content";
