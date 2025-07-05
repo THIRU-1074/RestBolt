@@ -36,10 +36,10 @@ fetch(proxyUrl + targetUrl)
 
 Yet to Done:
 
-1. Image encoder
-2. cURL Preview
-3. Auto Time Insertion
-4. Support binary data (MIME)
-5. Button to export request and response as a file
-6. Timing info
-7. Bulk URL edits
+->A preview bug in curl
+
+1. Auto Time Insertion
+2. Support binary data (MIME)
+3. Button to export request and response as a file
+4. Timing info
+5. Bulk URL edits

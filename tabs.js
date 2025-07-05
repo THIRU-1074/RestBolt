@@ -1,7 +1,10 @@
 let tabCount = 1;
 const tabHeaders = document.getElementById("tabHeaders");
 const tabContents = document.getElementById("tabContents");
-const defaultContent = document.getElementById("tab1Content").cloneNode(true);
+const tab1Content = document.getElementById("tab1Content");
+
+const defaultContent = tab1Content.cloneNode(true);
+
 activateTab("tab" + tabCount);
 switchTab("tab" + tabCount);
 function switchTab(tabID) {
@@ -63,7 +66,6 @@ document.getElementById("addTab").addEventListener("click", () => {
   tabContent.id = newTabId + "Content";
   tabContent.innerHTML = defaultContent.innerHTML;
   tabContents.appendChild(tabContent);
-
   activateTab(newTabId);
   switchTab(newTabId);
 });

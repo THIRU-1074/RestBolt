@@ -235,173 +235,258 @@
               ></iframe>
             </div>
           </div>
-          <div
-            class="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 h-auto"
-          >
-            <h2 class="text-xl font-bold mb-4">Authentication</h2>
-
-            <!-- Authentication Dropdown -->
-            <div class="mb-4 bg-blue-200 p-4">
-              <label class="block font-semibold mb-1">Auth Type</label>
-              <select
-                data-id="authType"
-                class="w-full border px-3 py-2 rounded"
-                onchange="handleAuthChange()"
-              >
-                <option value="none" selected>None</option>
-                <option value="basic">Basic Auth</option>
-                <option value="jwt">JWT</option>
-                <option value="apikey">API Key</option>
-              </select>
-            </div>
-
-            <!-- Basic Auth -->
-            <div data-id="basicAuthFields" class="hidden space-y-2">
-              <input
-                type="text"
-                placeholder="Username"
-                class="w-full border px-3 py-2 rounded"
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                class="w-full border px-3 py-2 rounded"
-              />
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >Send Basic Auth In:</label
-                >
-                <div class="flex gap-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="basicLocation"
-                      value="header"
-                      class="mr-2 text-blue-600"
-                      checked
-                    />
-                    <span>Header</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="basicLocation"
-                      value="query"
-                      class="mr-2 text-blue-600"
-                    />
-                    <span>Query Parameter</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- JWT Auth -->
+          <div class="flex flex-col space-y-4 p-4 bg-gray-100 rounded">
             <div
-              data-id="jwtAuthFields"
-              class="hidden space-y-4 p-4 bg-white rounded-xl shadow-md border border-gray-200"
+              class="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 h-auto"
             >
-              <!-- 1. Algorithm Dropdown -->
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >Algorithm</label
+              <h2 class="text-xl font-bold mb-4">Authentication</h2>
+
+              <!-- Authentication Dropdown -->
+              <div class="mb-4 bg-blue-200 p-4">
+                <label class="block font-semibold mb-1">Auth Type</label>
+                <select
+                  data-id="authType"
+                  class="w-full border px-3 py-2 rounded"
+                  onchange="handleAuthChange()"
                 >
-                <select class="w-full border px-3 py-2 rounded">
-                  <option value="HS256">HS256 (HMAC SHA-256)</option>
-                  <option value="RS256">RS256 (RSA SHA-256)</option>
-                  <option value="ES256">ES256 (ECDSA SHA-256)</option>
-                  <option value="HS384">HS384</option>
-                  <option value="HS512">HS512</option>
+                  <option value="none" selected>None</option>
+                  <option value="basic">Basic Auth</option>
+                  <option value="jwt">JWT</option>
+                  <option value="apikey">API Key</option>
                 </select>
               </div>
-              <!-- 2. Signature -->
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >Signature</label
-                >
+
+              <!-- Basic Auth -->
+              <div data-id="basicAuthFields" class="hidden space-y-2">
                 <input
                   type="text"
-                  placeholder="Signature"
+                  placeholder="Username"
                   class="w-full border px-3 py-2 rounded"
                 />
-              </div>
-              <!-- 3. JWT Payload -->
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >JWT Payload (JSON)</label
-                >
-                <textarea
-                  placeholder="Enter JWT Payload as JSON"
-                  class="w-full border px-3 py-2 rounded h-32 resize-none"
-                ></textarea>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  class="w-full border px-3 py-2 rounded"
+                />
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >Send Basic Auth In:</label
+                  >
+                  <div class="flex gap-4">
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="basicLocation"
+                        value="header"
+                        class="mr-2 text-blue-600"
+                        checked
+                      />
+                      <span>Header</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="basicLocation"
+                        value="query"
+                        class="mr-2 text-blue-600"
+                      />
+                      <span>Query Parameter</span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
-              <!-- 4. Auth Location (Header or Query) -->
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >Send JWT In:</label
-                >
-                <div class="flex gap-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="jwtLocation"
-                      value="header"
-                      class="mr-2 text-blue-600"
-                      checked
-                    />
-                    <span>Header</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="jwtLocation"
-                      value="query"
-                      class="mr-2 text-blue-600"
-                    />
-                    <span>Query Parameter</span>
-                  </label>
+              <!-- JWT Auth -->
+              <div
+                data-id="jwtAuthFields"
+                class="hidden space-y-4 p-4 bg-white rounded-xl shadow-md border border-gray-200"
+              >
+                <!-- 1. Algorithm Dropdown -->
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >Algorithm</label
+                  >
+                  <select class="w-full border px-3 py-2 rounded">
+                    <option value="HS256">HS256 (HMAC SHA-256)</option>
+                    <option value="RS256">RS256 (RSA SHA-256)</option>
+                    <option value="ES256">ES256 (ECDSA SHA-256)</option>
+                    <option value="HS384">HS384</option>
+                    <option value="HS512">HS512</option>
+                  </select>
+                </div>
+                <!-- 2. Signature -->
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >Signature</label
+                  >
+                  <input
+                    type="text"
+                    placeholder="Signature"
+                    class="w-full border px-3 py-2 rounded"
+                  />
+                </div>
+                <!-- 3. JWT Payload -->
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >JWT Payload (JSON)</label
+                  >
+                  <textarea
+                    placeholder="Enter JWT Payload as JSON"
+                    class="w-full border px-3 py-2 rounded h-32 resize-none"
+                  ></textarea>
+                </div>
+
+                <!-- 4. Auth Location (Header or Query) -->
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >Send JWT In:</label
+                  >
+                  <div class="flex gap-4">
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="jwtLocation"
+                        value="header"
+                        class="mr-2 text-blue-600"
+                        checked
+                      />
+                      <span>Header</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="jwtLocation"
+                        value="query"
+                        class="mr-2 text-blue-600"
+                      />
+                      <span>Query Parameter</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- API Key -->
+              <div data-id="apiKeyFields" class="hidden space-y-2">
+                <input
+                  type="text"
+                  placeholder="Key Name (e.g., x-api-key)"
+                  class="w-full border px-3 py-2 rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Key Value"
+                  class="w-full border px-3 py-2 rounded"
+                />
+                <!--LOCATION-->
+                <div>
+                  <label class="block mb-1 font-medium text-gray-700"
+                    >Send API Key In:</label
+                  >
+                  <div class="flex gap-4">
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="apiAuthLocation"
+                        value="header"
+                        class="mr-2 text-blue-600"
+                        checked
+                      />
+                      <span>Header</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                      <input
+                        type="radio"
+                        name="apiAuthLocation"
+                        value="query"
+                        class="mr-2 text-blue-600"
+                      />
+                      <span>Query Parameter</span>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
+            <div
+              data-id="devToolsContent"
+              class="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 h-auto"
+            >
+              <h2 class="text-xl font-semibold mb-4">Handy Dev Tools</h2>
 
-            <!-- API Key -->
-            <div data-id="apiKeyFields" class="hidden space-y-2">
-              <input
-                type="text"
-                placeholder="Key Name (e.g., x-api-key)"
-                class="w-full border px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Key Value"
-                class="w-full border px-3 py-2 rounded"
-              />
-              <!--LOCATION-->
-              <div>
-                <label class="block mb-1 font-medium text-gray-700"
-                  >Send API Key In:</label
+              <!-- DevTools Dropdown -->
+              <div class="mb-4 bg-blue-200 p-4">
+                <label class="block font-semibold mb-1">Select Tool🛠️</label>
+                <select
+                  data-id="tool"
+                  class="w-full border px-3 py-2 rounded"
+                  onchange="handleToolChange()"
                 >
-                <div class="flex gap-4">
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="apiAuthLocation"
-                      value="header"
-                      class="mr-2 text-blue-600"
-                      checked
-                    />
-                    <span>Header</span>
-                  </label>
-                  <label class="inline-flex items-center">
-                    <input
-                      type="radio"
-                      name="apiAuthLocation"
-                      value="query"
-                      class="mr-2 text-blue-600"
-                    />
-                    <span>Query Parameter</span>
-                  </label>
+                  <option value="Base_64ImgEncoder" selected>
+                    Base-64 Image Encoder
+                  </option>
+                  <option value="cURL">cURL Preview</option>
+                  <option value="timeInsertion">Auto Time Insertion</option>
+                  <option value="timingInfo">Timing Info</option>
+                </select>
+              </div>
+              <!--Base-64 Image Encoder-->
+              <div
+                class="w-full max-w-md p-6 bg-blue-500 rounded-xl shadow-lg text-white space-y-4 hidden"
+                data-id="b64ImgEncoder"
+              >
+                <h2 class="text-xl font-semibold text-center">
+                  Image to Base64 Encoder
+                </h2>
+
+                <!-- Drag & Drop Area -->
+                <div
+                  data-id="dropzone"
+                  class="border-2 border-dashed border-white rounded-lg p-6 text-center cursor-pointer hover:bg-blue-600 transition duration-300"
+                >
+                  <p>Drag & Drop your image here or click to select</p>
+                  <input
+                    type="file"
+                    data-id="fileInput"
+                    accept="image/*"
+                    class="hidden"
+                  />
                 </div>
+
+                <!-- Base64 Output -->
+                <div class="bg-white text-black p-4 rounded-md relative">
+                  <textarea
+                    data-id="base64Output"
+                    class="w-full h-40 resize-none outline-none bg-transparent"
+                    readonly
+                  ></textarea>
+                  <button
+                    class="absolute top-2 right-2 p-2 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 active:scale-95 transition"
+                    onclick="copyResponse()"
+                    aria-label="Copy"
+                    data-id="copyBtn"
+                  >
+                    <img src="copy_logo.png" alt="Copy" class="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <!--cURL Preview-->
+              <div
+                class="w-full max-w-2xl bg-white p-6 rounded-lg shadow space-y-4 hidden"
+                data-id="cURL"
+              >
+                <h2 class="text-xl font-bold text-gray-800">cURL Preview</h2>
+
+                <textarea
+                  data-id="curlOutput"
+                  readonly
+                  class="w-full h-60 p-4 border border-gray-300 rounded bg-gray-50 font-mono text-sm resize-none"
+                ></textarea>
+
+                <button
+                  data-id="curl_eg"
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Generate Example Preview
+                </button>
               </div>
             </div>
           </div>
@@ -409,6 +494,7 @@
       </div>
     </div>
     <!-- JS logic goes in main.js -->
+    <script src="devTools.js"></script>
     <script src="index.js"></script>
     <script src="tabs.js"></script>
   </body>

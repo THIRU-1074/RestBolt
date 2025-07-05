@@ -122,6 +122,11 @@ async function sendRequest() {
   collectReqHeaders();
   collectReqBody();
   collectReqQuery();
+  console.log(bodyText);
+  if (bodyText.length == 0)
+    runPreview(curlPreview(url, method, headersListObj[tabId]));
+  else
+    runPreview(curlPreview(url, headersListObj[tabId], JSON.parse(bodyText)));
   // Prepare fetch options
   const options = {
     method,
@@ -295,6 +300,7 @@ function handleAuthChange() {
   document.querySelector(`#${tabId} [data-id="apiKeyFields"]`).style.display =
     value === "apikey" ? "block" : "none";
 }
+
 function handleJWT(jwtDiv) {
   try {
     // 1. Read user input
@@ -409,4 +415,6 @@ function activateTab(newTabId) {
     .addEventListener("click", sendRequest);
   addHeaderBtn.addEventListener("click", includeHeader);
   addQueryBtn.addEventListener("click", includeQuery);
+
+  configdevTools();
 }
