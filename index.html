@@ -205,8 +205,8 @@
                 </label>
                 <button
                   class="flex items-center p-2 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 active:scale-95 transition"
-                  onclick="copyResponse()"
                   aria-label="Copy"
+                  data-id="copyResponse"
                 >
                   <img src="copy_logo.png" alt="Copy" class="w-4 h-4" />
                 </button>
@@ -460,9 +460,8 @@
                   ></textarea>
                   <button
                     class="absolute top-2 right-2 p-2 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 active:scale-95 transition"
-                    onclick="copyResponse()"
                     aria-label="Copy"
-                    data-id="copyBtn"
+                    data-id="copyBase64"
                   >
                     <img src="copy_logo.png" alt="Copy" class="w-4 h-4" />
                   </button>
@@ -473,14 +472,24 @@
                 class="w-full max-w-2xl bg-white p-6 rounded-lg shadow space-y-4 hidden"
                 data-id="cURL"
               >
-                <h2 class="text-xl font-bold text-gray-800">cURL Preview</h2>
+                <!-- Header with Copy Button -->
+                <div class="flex items-center justify-between">
+                  <h2 class="text-xl font-bold text-gray-800">cURL Preview</h2>
+                  <button
+                    class="p-2 rounded-full bg-white border border-gray-300 shadow-sm hover:bg-gray-100 active:scale-95 transition"
+                    aria-label="Copy"
+                    data-id="copyCURL"
+                  >
+                    <img src="copy_logo.png" alt="Copy" class="w-4 h-4" />
+                  </button>
+                </div>
 
+                <!-- Textarea -->
                 <textarea
                   data-id="curlOutput"
                   readonly
                   class="w-full h-60 p-4 border border-gray-300 rounded bg-gray-50 font-mono text-sm resize-none"
                 ></textarea>
-
                 <button
                   data-id="curl_eg"
                   class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"

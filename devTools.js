@@ -1,14 +1,16 @@
 let dropzone = undefined;
 let fileInput = undefined;
-let output = undefined;
-let copyBtn = undefined;
-
+let base64Output = undefined;
+let curlOutput = undefined;
+let copyBase64 = undefined;
+let copyCURL = undefined;
 function configdevTools() {
   dropzone = document.querySelector(`#${tabId} [data-id="dropzone"]`);
   fileInput = document.querySelector(`#${tabId} [data-id="fileInput"]`);
-  output = document.querySelector(`#${tabId} [data-id="base64Output"]`);
-  copyBtn = document.querySelector(`#${tabId} [data-id="copyBtn"]`);
-
+  base64Output = document.querySelector(`#${tabId} [data-id="base64Output"]`);
+  curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
+  copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
+  copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
   // Handle click to open file selector
   dropzone.addEventListener("click", () => fileInput.click());
 
@@ -35,16 +37,13 @@ function configdevTools() {
     if (file) convertToBase64(file);
   });
   // Copy to clipboard
-  copyBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(output.value).then(() => {
-      let copyBtnHTML = copyBtn.innerHTML;
-      copyBtn.textContent = "Copied!";
-      setTimeout(() => (copyBtn.innerHTML = copyBtnHTML), 1500);
-    });
-  });
+  copyBase64.addEventListener("click", () =>
+    copy(base64Output.value, copyBase64)
+  );
+  copyCURL.addEventListener("click", () => copy(curlOutput.value, copyCURL));
   document
     .querySelector(`#${tabId} [data-id="curl_eg"]`)
-    .addEventListener("click", runPreview());
+    .addEventListener("click", () => runPreview());
 }
 function handleToolChange() {
   const value = document.querySelector(`#${tabId} [data-id="tool"]`).value;
@@ -95,7 +94,7 @@ function runPreview(curlStr = null) {
 function convertToBase64(file) {
   const reader = new FileReader();
   reader.onload = () => {
-    output.value = reader.result;
+    base64Output.value = reader.result;
   };
   reader.readAsDataURL(file);
 }

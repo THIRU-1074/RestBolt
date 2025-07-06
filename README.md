@@ -36,8 +36,6 @@ fetch(proxyUrl + targetUrl)
 
 Yet to Done:
 
-->A preview bug in curl
-
 1. Auto Time Insertion
 2. Support binary data (MIME)
 3. Button to export request and response as a file

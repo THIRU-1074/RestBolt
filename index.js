@@ -387,12 +387,14 @@ function retrieveAuth() {
     return handleJWT(authDiv);
   } else return null;
 }
-function copyResponse() {
-  const text = responseBody.textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    console.log("Copied!");
-    // Optionally show a toast or tooltip
-  });
+function copy(textContent, copyBtn) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textContent).then(() => {
+      let copyBtnHTML = copyBtn.innerHTML;
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => (copyBtn.innerHTML = copyBtnHTML), 1500);
+    });
+  }
 }
 function activateTab(newTabId) {
   tabId = newTabId + "Content";
@@ -410,6 +412,12 @@ function activateTab(newTabId) {
       );
     });
   });
+  let copyResponse = document.querySelector(
+    `#${tabId} [data-id="copyResponse"]`
+  );
+  copyResponse.addEventListener("click", () =>
+    copy(responseBody.textContent, copyResponse)
+  );
   document
     .querySelector(`#${tabId} [data-id="sendBtn"]`)
     .addEventListener("click", sendRequest);
