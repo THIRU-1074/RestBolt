@@ -73,12 +73,20 @@
 
             <!-- Headers Section -->
             <div class="mb-4">
-              <label class="block text-sm font-semibold mb-2"
-                >Key-Value Pair Adder</label
-              >
+              <div class="flex items-center gap-4 mb-2">
+                <label class="block text-sm font-semibold mb-2"
+                  >Key-Value Pair Adder</label
+                >
+                <button
+                  data-id="toggleEditMode"
+                  class="px-3 py-1 text-sm rounded border border-blue-500 text-blue-600 hover:bg-blue-100 transition"
+                >
+                  Switch to Bulk Edit
+                </button>
+              </div>
               <div data-id="headersContainer" class="space-y-2">
-                <!-- Initial Key-Value Row -->
-                <div class="flex gap-2">
+                <!--Key-Value Mode -->
+                <div class="flex gap-2" data-id="keyValueMode">
                   <input
                     type="text"
                     placeholder="Key"
@@ -90,16 +98,25 @@
                     class="w-1/2 border rounded px-3 py-2 text-sm"
                   />
                 </div>
+                <!-- Bulk Edit Mode (Hidden by Default) -->
+                <textarea
+                  data-id="bulkEditBox"
+                  class="w-full h-40 border rounded px-3 py-2 text-sm hidden"
+                  placeholder="Rows are separated by new new lines
+keys and values are separated by :
+Prepend // to any row you want to add but keep disabled"
+                ></textarea>
               </div>
               <button
                 data-id="addHeaderBtn"
-                class="mt-2 text-blue-600 text-sm hover:underline"
+                class="inline-flex items-center gap-1 text-[#007bff] text-sm px-2 py-1 rounded-md border border-[#007bff] bg-white hover:bg-[#e6f0ff] hover:text-[#0056b3] transition-colors mr-2 mt-2"
               >
                 + Add Header
               </button>
+
               <button
                 data-id="addQueryBtn"
-                class="mt-2 text-blue-600 text-sm hover:underline"
+                class="inline-flex items-center gap-1 text-[#007bff] text-sm px-2 py-1 rounded-md border border-[#007bff] bg-white hover:bg-[#e6f0ff] hover:text-[#0056b3] transition-colors mt-2"
               >
                 + Add Query
               </button>
@@ -420,10 +437,10 @@
                   class="w-full border px-3 py-2 rounded"
                   onchange="handleToolChange()"
                 >
-                  <option value="Base_64ImgEncoder" selected>
+                  <option value="Base_64ImgEncoder">
                     Base-64 Image Encoder
                   </option>
-                  <option value="cURL">cURL Preview</option>
+                  <option value="cURL" selected>cURL Preview</option>
                   <option value="timeInsertion">Auto Time Insertion</option>
                   <option value="timingInfo">Timing Info</option>
                 </select>
@@ -469,7 +486,7 @@
               </div>
               <!--cURL Preview-->
               <div
-                class="w-full max-w-2xl bg-white p-6 rounded-lg shadow space-y-4 hidden"
+                class="w-full max-w-2xl bg-white p-6 rounded-lg shadow space-y-4"
                 data-id="cURL"
               >
                 <!-- Header with Copy Button -->

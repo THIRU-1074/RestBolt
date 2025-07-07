@@ -19,7 +19,11 @@ let addHeaderBtn = undefined;
 let displayHeaders = undefined;
 let displayQueries = undefined;
 let addQueryBtn = undefined;
+let toggleButton = undefined;
+let keyValueMode = undefined;
+let bulkEditBox = undefined;
 
+let bulkEditActive = undefined;
 function collectReqHeaders() {
   // Collect headers
   addAuth();
@@ -289,6 +293,9 @@ function setParams() {
     `#${tabId} [data-id="displayQueries"]`
   );
   addQueryBtn = document.querySelector(`#${tabId} [data-id="addQueryBtn"]`);
+  toggleButton = document.querySelector(`#${tabId} [data-id="toggleEditMode"]`);
+  keyValueMode = document.querySelector(`#${tabId} [data-id="keyValueMode"]`);
+  bulkEditBox = document.querySelector(`#${tabId} [data-id="bulkEditBox"]`);
 }
 function handleAuthChange() {
   const value = document.querySelector(`#${tabId} [data-id="authType"]`).value;
@@ -396,6 +403,41 @@ function copy(textContent, copyBtn) {
     });
   }
 }
+
+// Function to parse bulk edit and return array of objects
+function parseAndBulkEdit(isAddHeader) {
+  const lines = bulkEditBox.value.split("\n");
+  let keyValues = undefined;
+  if (isAddHeader) keyValues = headersListObj[tabId];
+  else keyValues = queryListObj[tabId];
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+    const disabled = line.startsWith("//");
+    const cleanLine = disabled ? line.slice(2).trim() : line;
+    console.log(cleanLine);
+    const [key, ...rest] = cleanLine.split(":");
+    const value = rest.join(":").trim();
+    if (key && value) {
+      const obj = {
+        key: key.trim(),
+        value: value.trim(),
+        checked: !disabled,
+      };
+      const exists = keyValues.some(
+        (item) =>
+          item.key === obj.key &&
+          item.value === obj.value &&
+          item.checked === obj.checked
+      );
+      if (!exists) keyValues.push(obj);
+    }
+  }
+  console.log(keyValues);
+  if (isAddHeader) updateKeyValDisplay(displayHeaders, keyValues);
+  else updateKeyValDisplay(displayQueries, keyValues);
+}
+
 function activateTab(newTabId) {
   tabId = newTabId + "Content";
   headersListObj[tabId] = [];
@@ -411,6 +453,24 @@ function activateTab(newTabId) {
         responseBody.textContent
       );
     });
+  });
+  bulkEditActive = false;
+  toggleButton.addEventListener("click", () => {
+    bulkEditActive = !bulkEditActive;
+
+    if (!bulkEditActive) {
+      toggleButton.textContent = "Switch to Key-Value Edit";
+      keyValueMode.classList.add("hidden");
+      bulkEditBox.classList.remove("hidden");
+      addHeaderBtn.addEventListener("click", includeHeader);
+      addQueryBtn.addEventListener("click", includeQuery);
+    } else {
+      toggleButton.textContent = "Switch to Bulk Edit";
+      keyValueMode.classList.remove("hidden");
+      bulkEditBox.classList.add("hidden");
+      addHeaderBtn.addEventListener("click", () => parseAndBulkEdit(true));
+      addQueryBtn.addEventListener("click", () => parseAndBulkEdit(false));
+    }
   });
   let copyResponse = document.querySelector(
     `#${tabId} [data-id="copyResponse"]`
