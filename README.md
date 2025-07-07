@@ -40,4 +40,3 @@ Yet to Done:
 2. Support binary data (MIME)
 3. Button to export request and response as a file
 4. Timing info
-5. Bulk URL edits
