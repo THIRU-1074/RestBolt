@@ -11,6 +11,7 @@ function configdevTools() {
   curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
   copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
   copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
+  const decodeBtn = document.querySelector(`#${tabId} [data-id="decodeBtn"]`);
   // Handle click to open file selector
   dropzone.addEventListener("click", () => fileInput.click());
 
@@ -30,7 +31,7 @@ function configdevTools() {
     const file = e.dataTransfer.files[0];
     if (file) convertToBase64(file);
   });
-
+  decodeBtn.addEventListener("click", () => convertFromBase64());
   // Handle manual file selection
   fileInput.addEventListener("change", () => {
     const file = fileInput.files[0];
@@ -44,6 +45,70 @@ function configdevTools() {
   document
     .querySelector(`#${tabId} [data-id="curl_eg"]`)
     .addEventListener("click", () => runPreview());
+
+  const unixInputSection = document.querySelector(
+    `#${tabId} [data-id="unixInputSection"]`
+  );
+  const utcInputSection = document.querySelector(
+    `#${tabId} [data-id="utcInputSection"]`
+  );
+  const output = document.querySelector(`#${tabId} [data-id="output"]`);
+  const convertBtn = document.querySelector(`#${tabId} [data-id="convertBtn"]`);
+  const toggle = document.querySelector(`#${tabId} [data-id="modeSwitch"]`);
+  const label = document.querySelector(`#${tabId} [data-id="toggleLabel"]`);
+  const knob = document.querySelector(`#${tabId} [data-id="switchKnob"]`);
+  const track = document.querySelector(`#${tabId} [data-id="switchTrack"]`);
+  toggle.addEventListener("change", () => {
+    if (toggle.checked) {
+      knob.style.transform = "translateX(20px)";
+      track.classList.remove("bg-blue-500");
+      track.classList.add("bg-green-500");
+      unixInputSection.classList.add("hidden");
+      utcInputSection.classList.remove("hidden");
+      label.textContent = "UTC ➝ Unix";
+      output.textContent = "";
+    } else {
+      knob.style.transform = "translateX(0px)";
+      track.classList.remove("bg-green-500");
+      track.classList.add("bg-blue-500");
+      unixInputSection.classList.remove("hidden");
+      utcInputSection.classList.add("hidden");
+      output.textContent = "";
+      label.textContent = "Unix ➝ UTC";
+    }
+  });
+
+  convertBtn.addEventListener("click", () => {
+    if (!toggle.checked) {
+      // Unix ➝ UTC
+      const unixTime = parseInt(
+        document.querySelector(`#${tabId} [data-id="unixInput"]`).value.trim()
+      );
+      if (isNaN(unixTime)) {
+        output.textContent = "Please enter a valid Unix timestamp";
+        return;
+      }
+      const date = new Date(unixTime * 1000);
+      output.textContent = `UTC Time: ${date.toUTCString()}`;
+    } else {
+      // UTC ➝ Unix
+      const dateStr = document.querySelector(
+        `#${tabId} [data-id="utcDate"]`
+      ).value;
+      const timeStr = document.querySelector(
+        `#${tabId} [data-id="utcTime"]`
+      ).value;
+
+      if (!dateStr || !timeStr) {
+        output.textContent = "Please select both date and time";
+        return;
+      }
+
+      const fullDateTime = new Date(`${dateStr}T${timeStr}Z`);
+      const unixTimestamp = Math.floor(fullDateTime.getTime() / 1000);
+      output.textContent = `Unix Timestamp: ${unixTimestamp}`;
+    }
+  });
 }
 function handleToolChange() {
   const value = document.querySelector(`#${tabId} [data-id="tool"]`).value;
@@ -51,6 +116,10 @@ function handleToolChange() {
     value === "Base_64ImgEncoder" ? "block" : "none";
   document.querySelector(`#${tabId} [data-id="cURL"]`).style.display =
     value === "cURL" ? "block" : "none";
+  document.querySelector(`#${tabId} [data-id="UnixTimeConv"]`).style.display =
+    value === "UnixTimeConv" ? "block" : "none";
+  document.querySelector(`#${tabId} [data-id="b64ImgDecoder"]`).style.display =
+    value === "Base_64ImgDecoder" ? "block" : "none";
 }
 function curlPreview(url, method, headersList, jsonBody = null) {
   console.log(method);
@@ -97,4 +166,30 @@ function convertToBase64(file) {
     base64Output.value = reader.result;
   };
   reader.readAsDataURL(file);
+}
+
+function convertFromBase64() {
+  const base64Input = document.querySelector(
+    `#${tabId} [data-id="base64Input"]`
+  );
+  const decodedImage = document.querySelector(
+    `#${tabId} [data-id="decodedImage"]`
+  );
+  const outputArea = document.querySelector(`#${tabId} [data-id="outputArea"]`);
+  const errorMsg = document.querySelector(`#${tabId} [data-id="errorMsg"]`);
+
+  const base64String = base64Input.value.trim();
+
+  // Basic validation
+  if (!base64String.startsWith("data:image/")) {
+    errorMsg.textContent =
+      "Invalid Base64 image string. Make sure it starts with 'data:image/...'";
+    errorMsg.classList.remove("hidden");
+    outputArea.classList.add("hidden");
+    return;
+  }
+
+  decodedImage.src = base64String;
+  errorMsg.classList.add("hidden");
+  outputArea.classList.remove("hidden");
 }

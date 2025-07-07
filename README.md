@@ -36,7 +36,5 @@ fetch(proxyUrl + targetUrl)
 
 Yet to Done:
 
-1. Auto Time Insertion
+1. Button to export request and response as a file
 2. Support binary data (MIME)
-3. Button to export request and response as a file
-4. Timing info

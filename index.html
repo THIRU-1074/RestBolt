@@ -74,8 +74,10 @@
             <!-- Headers Section -->
             <div class="mb-4">
               <div class="flex items-center gap-4 mb-2">
-                <label class="block text-sm font-semibold mb-2"
-                  >Key-Value Pair Adder</label
+                <label
+                  class="block text-sm font-semibold mb-2"
+                  data-id="editModeIndicator"
+                  >Key-Value Adder</label
                 >
                 <button
                   data-id="toggleEditMode"
@@ -440,9 +442,11 @@ Prepend // to any row you want to add but keep disabled"
                   <option value="Base_64ImgEncoder">
                     Base-64 Image Encoder
                   </option>
+                  <option value="Base_64ImgDecoder">
+                    Base-64 Image Decoder
+                  </option>
                   <option value="cURL" selected>cURL Preview</option>
-                  <option value="timeInsertion">Auto Time Insertion</option>
-                  <option value="timingInfo">Timing Info</option>
+                  <option value="UnixTimeConv">UnixTimeConv</option>
                 </select>
               </div>
               <!--Base-64 Image Encoder-->
@@ -484,6 +488,46 @@ Prepend // to any row you want to add but keep disabled"
                   </button>
                 </div>
               </div>
+              <!--Base-64 Image Decoder-->
+              <div
+                class="bg-white p-6 rounded-lg shadow-md max-w-2xl w-full space-y-4 hidden"
+                data-id="b64ImgDecoder"
+              >
+                <h2 class="text-xl font-bold text-center text-gray-700">
+                  Base64 Image Decoder
+                </h2>
+
+                <!-- Input -->
+                <textarea
+                  data-id="base64Input"
+                  rows="6"
+                  class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Paste base64 string here (data:image/png;base64,...)"
+                ></textarea>
+
+                <!-- Decode Button -->
+                <button
+                  data-id="decodeBtn"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold transition"
+                >
+                  Decode
+                </button>
+
+                <!-- Output -->
+                <div data-id="outputArea" class="text-center space-y-4 hidden">
+                  <p class="text-gray-700 font-medium">Decoded Image:</p>
+                  <img
+                    data-id="decodedImage"
+                    class="max-w-full max-h-96 mx-auto border rounded-md"
+                  />
+                </div>
+
+                <!-- Error -->
+                <p
+                  data-id="errorMsg"
+                  class="text-red-500 font-medium text-center hidden"
+                ></p>
+              </div>
               <!--cURL Preview-->
               <div
                 class="w-full max-w-2xl bg-white p-6 rounded-lg shadow space-y-4"
@@ -513,6 +557,82 @@ Prepend // to any row you want to add but keep disabled"
                 >
                   Generate Example Preview
                 </button>
+              </div>
+              <div
+                data-id="UnixTimeConv"
+                class="bg-white p-6 rounded-xl shadow-xl w-full max-w-md space-y-6 hidden"
+              >
+                <!-- Toggle Switch -->
+                <div class="flex items-center justify-center gap-4">
+                  <span data-id="toggleLabel" class="text-sm font-medium"
+                    >Unix ➝ UTC</span
+                  >
+
+                  <!-- Toggle switch -->
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      data-id="modeSwitch"
+                      type="checkbox"
+                      class="sr-only"
+                    />
+                    <div
+                      data-id="switchTrack"
+                      class="w-11 h-6 bg-blue-500 rounded-full transition-colors relative"
+                    >
+                      <div
+                        data-id="switchKnob"
+                        class="absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full transition-all transform"
+                      ></div>
+                    </div>
+                  </label>
+
+                  <span class="text-sm font-medium">UTC ➝ Unix</span>
+                </div>
+
+                <!-- Input Section -->
+                <div data-id="unixInputSection" class="space-y-4">
+                  <label class="block text-sm font-medium text-gray-700"
+                    >Enter Unix Timestamp:</label
+                  >
+                  <input
+                    data-id="unixInput"
+                    type="number"
+                    class="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g. 1720348475"
+                  />
+                </div>
+
+                <div data-id="utcInputSection" class="space-y-4 hidden">
+                  <label class="block text-sm font-medium text-gray-700"
+                    >Select UTC Date & Time:</label
+                  >
+                  <input
+                    data-id="utcDate"
+                    type="date"
+                    class="w-full p-2 border rounded-md"
+                  />
+                  <input
+                    data-id="utcTime"
+                    type="time"
+                    class="w-full p-2 border rounded-md"
+                  />
+                </div>
+
+                <!-- Convert Button -->
+                <button
+                  data-id="convertBtn"
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold transition"
+                >
+                  Convert
+                </button>
+
+                <!-- Output -->
+                <div
+                  data-id="output"
+                  class="text-center text-lg font-medium text-gray-800 bg-gray-100 p-4 rounded-md"
+                ></div>
               </div>
             </div>
           </div>

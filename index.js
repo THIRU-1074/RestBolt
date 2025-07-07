@@ -457,19 +457,23 @@ function activateTab(newTabId) {
   bulkEditActive = false;
   toggleButton.addEventListener("click", () => {
     bulkEditActive = !bulkEditActive;
-
-    if (!bulkEditActive) {
+    const indicator = document.querySelector(
+      `#${tabId} [data-id="editModeIndicator"]`
+    );
+    if (bulkEditActive) {
       toggleButton.textContent = "Switch to Key-Value Edit";
       keyValueMode.classList.add("hidden");
       bulkEditBox.classList.remove("hidden");
       addHeaderBtn.addEventListener("click", includeHeader);
       addQueryBtn.addEventListener("click", includeQuery);
+      indicator.textContent = "Bulk Key-Value editor";
     } else {
       toggleButton.textContent = "Switch to Bulk Edit";
       keyValueMode.classList.remove("hidden");
       bulkEditBox.classList.add("hidden");
       addHeaderBtn.addEventListener("click", () => parseAndBulkEdit(true));
       addQueryBtn.addEventListener("click", () => parseAndBulkEdit(false));
+      indicator.textContent = "Key-Value Adder";
     }
   });
   let copyResponse = document.querySelector(
