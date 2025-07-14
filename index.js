@@ -126,6 +126,7 @@ async function sendRequest() {
   collectReqHeaders();
   collectReqBody();
   collectReqQuery();
+  if (proxyEnabled) url = proxyURL + url;
   console.log(bodyText);
   if (bodyText.length == 0)
     runPreview(curlPreview(url, method, headersListObj[tabId]));
@@ -147,6 +148,15 @@ async function sendRequest() {
       err.toString();
   }
   headers = {};
+  url = "";
+
+  const queryList = queryListObj[tabId] || [];
+  queryListObj[tabId] = queryList.filter((item) => item.key !== "access_token");
+
+  const headersList = headersListObj[tabId] || [];
+  headersListObj[tabId] = headersList.filter(
+    (item) => item.key !== "Authorization"
+  );
 }
 
 function renderResponse(status, bodyText) {
@@ -244,7 +254,11 @@ function includeHeader(e) {
 
   if (key === "") return; // avoid blank keys
   let headersList = headersListObj[tabId];
-  headersList.push({ key, value, checked: true });
+  const exists = headersList.some((header) => header.key === key);
+
+  if (!exists) {
+    headersList.push({ key, value, checked: true });
+  }
   updateKeyValDisplay(displayHeaders, headersList);
 
   // Clear the inputs
@@ -261,7 +275,11 @@ function includeQuery(e) {
 
   if (key === "") return; // avoid blank keys
   let queryList = queryListObj[tabId];
-  queryList.push({ key, value, checked: true });
+  const exists = queryList.some((header) => header.key === key);
+
+  if (!exists) {
+    queryList.push({ key, value, checked: true });
+  }
   updateKeyValDisplay(displayQueries, queryList);
 
   // Clear the inputs
@@ -358,21 +376,42 @@ function base64UrlEncode(str) {
 }
 function addAuth() {
   let authObj = retrieveAuth();
-  console.log("here");
   console.log(authObj);
   if (authObj == null) return;
-  if (authObj.loc == "query") {
-    queryListObj[tabId].push({
-      key: "access_token",
-      value: authObj.token,
-      checked: true,
-    });
-  } else if (authObj.loc == "header") {
-    headersListObj[tabId].push({
-      key: "Authorization",
-      value: authObj.token,
-      checked: true,
-    });
+  if (authObj.loc === "query") {
+    const queryList = queryListObj[tabId] || [];
+
+    const index = queryList.findIndex((item) => item.key === "access_token");
+
+    if (index === -1) {
+      queryList.push({
+        key: "access_token",
+        value: authObj.token,
+        checked: true,
+      });
+    } else {
+      queryList[index].value = authObj.token;
+      queryList[index].checked = true;
+    }
+
+    queryListObj[tabId] = queryList;
+  } else if (authObj.loc === "header") {
+    const headersList = headersListObj[tabId] || [];
+
+    const index = headersList.findIndex((item) => item.key === "Authorization");
+
+    if (index === -1) {
+      headersList.push({
+        key: "Authorization",
+        value: authObj.token,
+        checked: true,
+      });
+    } else {
+      headersList[index].value = authObj.token;
+      headersList[index].checked = true;
+    }
+
+    headersListObj[tabId] = headersList;
   }
 }
 function retrieveAuth() {
@@ -403,7 +442,23 @@ function copy(textContent, copyBtn) {
     });
   }
 }
+function togglePasswordVisibility(inputId, button) {
+  const input = document.querySelector(`#${tabId} [data-id=${inputId}]`);
+  const isVisible = input.type === "text";
 
+  input.type = isVisible ? "password" : "text";
+
+  const eye = button.querySelector(`#${tabId}.eye-icon`);
+  const eyeOff = button.querySelector(`#${tabId}.eye-off-icon`);
+
+  if (isVisible) {
+    eye.classList.remove("hidden");
+    eyeOff.classList.add("hidden");
+  } else {
+    eye.classList.add("hidden");
+    eyeOff.classList.remove("hidden");
+  }
+}
 // Function to parse bulk edit and return array of objects
 function parseAndBulkEdit(isAddHeader) {
   const lines = bulkEditBox.value.split("\n");
