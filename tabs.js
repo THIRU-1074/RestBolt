@@ -20,8 +20,7 @@ function switchTab(tabID) {
     .forEach((content) => content.classList.add("hidden"));
   document.getElementById(tabID + "Content").classList.remove("hidden");
 }
-
-document.getElementById("addTab").addEventListener("click", () => {
+function addNewTab() {
   tabCount++;
   const newTabId = "tab" + tabCount;
 
@@ -39,6 +38,7 @@ document.getElementById("addTab").addEventListener("click", () => {
   // Inner span for tab label
   const labelSpan = document.createElement("span");
   labelSpan.textContent = "undefined";
+  labelSpan.setAttribute("data-id", "tabNameHolder");
   labelSpan.onclick = () => renameTab(labelSpan);
   // Inner span for ❌ delete
   const closeSpan = document.createElement("span");
@@ -68,7 +68,8 @@ document.getElementById("addTab").addEventListener("click", () => {
   tabContents.appendChild(tabContent);
   activateTab(newTabId);
   switchTab(newTabId);
-});
+}
+document.getElementById("addTab").addEventListener("click", addNewTab);
 
 function deleteTab(tabId) {
   // Remove tab button + wrapper

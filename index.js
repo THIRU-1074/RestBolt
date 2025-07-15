@@ -5,6 +5,7 @@ let headers = {};
 let res = undefined;
 let headersListObj = {};
 let queryListObj = {};
+let responseObj = {};
 let url = undefined;
 let tabId = undefined;
 
@@ -13,6 +14,7 @@ let responseBody = undefined;
 let responseIframe = undefined;
 let responseStatus = undefined;
 let responseHeaders = undefined;
+let responseHeadersObj = {};
 
 let headersContainer = undefined;
 let addHeaderBtn = undefined;
@@ -103,12 +105,8 @@ async function handleResponse(res) {
 
   // Try to parse response as JSON, fallback to text
   let body;
-  if (contentType.includes("application/json")) {
-    const json = await res.json();
-    body = JSON.stringify(json, null, 2);
-  } else {
-    body = await res.text();
-  }
+  let buffer = responseObj[tabId];
+  body = new TextDecoder().decode(buffer);
   document.querySelector(`#${tabId} [data-id="responseBody"]`).textContent =
     body;
 }
@@ -131,7 +129,9 @@ async function sendRequest() {
   if (bodyText.length == 0)
     runPreview(curlPreview(url, method, headersListObj[tabId]));
   else
-    runPreview(curlPreview(url, headersListObj[tabId], JSON.parse(bodyText)));
+    runPreview(
+      curlPreview(url, method, headersListObj[tabId], JSON.parse(bodyText))
+    );
   // Prepare fetch options
   const options = {
     method,
@@ -140,6 +140,15 @@ async function sendRequest() {
   console.log(method);
   try {
     res = await fetch(url, options);
+
+    const plainHeaders = {};
+    res.headers.forEach((value, key) => {
+      plainHeaders[key] = value;
+    });
+    console.log(plainHeaders);
+    responseHeadersObj[tabId] = plainHeaders;
+    responseObj[tabId] = await res.arrayBuffer();
+
     handleResponse(res);
   } catch (err) {
     document.querySelector(`#${tabId} [data-id="responseStatus"]`).textContent =
