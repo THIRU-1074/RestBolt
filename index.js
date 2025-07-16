@@ -148,8 +148,16 @@ async function sendRequest() {
     console.log(plainHeaders);
     responseHeadersObj[tabId] = plainHeaders;
     responseObj[tabId] = await res.arrayBuffer();
-
     handleResponse(res);
+    const rawRadio = document.querySelector(
+      `#${tabId} input[name="viewMode"][value="raw"]`
+    );
+
+    // Set it as checked
+    rawRadio.checked = true;
+
+    // Trigger the change event manually
+    rawRadio.dispatchEvent(new Event("change", { bubbles: true }));
   } catch (err) {
     document.querySelector(`#${tabId} [data-id="responseStatus"]`).textContent =
       "Error";

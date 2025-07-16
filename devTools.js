@@ -120,6 +120,8 @@ function handleToolChange() {
     value === "UnixTimeConv" ? "block" : "none";
   document.querySelector(`#${tabId} [data-id="b64ImgDecoder"]`).style.display =
     value === "Base_64ImgDecoder" ? "block" : "none";
+  document.querySelector(`#${tabId} [data-id="UUIDGen"]`).style.display =
+    value === "UUIDGen" ? "block" : "none";
 }
 function curlPreview(url, method, headersList, jsonBody = null) {
   console.log(method);
@@ -192,4 +194,40 @@ function convertFromBase64() {
   decodedImage.src = base64String;
   errorMsg.classList.add("hidden");
   outputArea.classList.remove("hidden");
+}
+function generateUUID() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+function generateUUIDs() {
+  const count =
+    parseInt(
+      document.querySelector(`#${tabId} [data-id="uuid-count"]`).value
+    ) || 0;
+  if (count > 500) {
+    alert("Maximum Limit is 500...!");
+    return;
+  }
+  const list = document.querySelector(`#${tabId} [data-id="uuidList"]`);
+  list.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "font-mono text-gray-800 break-all";
+    div.textContent = generateUUID();
+    list.appendChild(div);
+  }
+}
+
+function copyAll() {
+  const list = document.querySelector(`#${tabId} [data-id="uuidList"]`);
+  const text = Array.from(list.children)
+    .map((el) => el.textContent)
+    .join("\n");
+  navigator.clipboard.writeText(text).then(() => {
+    alert("UUIDs copied to clipboard!");
+  });
 }

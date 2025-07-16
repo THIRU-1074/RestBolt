@@ -9,9 +9,7 @@
   <body class="bg-gray-100 min-h-screen p-6">
     <div class="flex gap-4 p-4 bg-white shadow-md rounded-lg mb-2">
       <!-- Hamburger Menu Icon -->
-      <button
-        class="relative group p-2 rounded-full bg-white border border-gray-200 shadow hover:bg-gray-100"
-      >
+      <button class="relative group p-2 rounded-full bg-white">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="h-6 w-6 text-gray-700 cursor-pointer"
@@ -699,6 +697,7 @@ Prepend // to any row you want to add but keep disabled"
                   </option>
                   <option value="cURL" selected>cURL Preview</option>
                   <option value="UnixTimeConv">UnixTimeConv</option>
+                  <option value="UUIDGen">UUID Generator</option>
                 </select>
               </div>
               <!--Base-64 Image Encoder-->
@@ -885,6 +884,53 @@ Prepend // to any row you want to add but keep disabled"
                   data-id="output"
                   class="text-center text-lg font-medium text-gray-800 bg-gray-100 p-4 rounded-md"
                 ></div>
+              </div>
+              <div
+                class="bg-white shadow-2xl rounded-2xl p-6 w-full max-w-xl hidden"
+                data-id="UUIDGen"
+              >
+                <h1 class="text-2xl font-bold text-center text-blue-600 mb-4">
+                  UUID Generator
+                </h1>
+
+                <div
+                  class="flex flex-col sm:flex-row gap-4 mb-4 items-center justify-between"
+                >
+                  <div class="flex items-center gap-2">
+                    <label class="text-gray-700 font-medium" for="count"
+                      >Number:</label
+                    >
+                    <input
+                      data-id="uuid-count"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value="5"
+                      class="w-20 px-3 py-1 border border-blue-400 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    />
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      onclick="generateUUIDs()"
+                      class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md shadow"
+                    >
+                      Generate
+                    </button>
+                    <button
+                      onclick="copyAll()"
+                      class="bg-blue-100 text-blue-600 font-semibold px-4 py-2 rounded-md border border-blue-400 hover:bg-blue-200"
+                    >
+                      Copy All
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  data-id="uuidList"
+                  class="max-h-64 overflow-y-auto border border-gray-300 rounded-md p-4 bg-gray-50 text-sm space-y-2"
+                >
+                  <!-- UUIDs will appear here -->
+                </div>
               </div>
             </div>
           </div>
