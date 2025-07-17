@@ -124,7 +124,7 @@ async function sendRequest() {
   collectReqHeaders();
   collectReqBody();
   collectReqQuery();
-  if (proxyEnabled) url = proxyURL + url;
+  if (proxyEnabled) url = proxyURL + encodeURIComponent(url);
   console.log(bodyText);
   if (bodyText.length == 0)
     runPreview(curlPreview(url, method, headersListObj[tabId]));
