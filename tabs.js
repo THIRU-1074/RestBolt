@@ -100,6 +100,7 @@ function renameTab(spanElement) {
     const newName = input.value.trim() || currentName;
     const newSpan = document.createElement("span");
     newSpan.textContent = newName;
+    newSpan.setAttribute("data-id", "tabNameHolder");
     newSpan.onclick = () => renameTab(newSpan);
     input.replaceWith(newSpan);
   };

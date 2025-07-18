@@ -2,18 +2,37 @@ const express = require("express");
 const cors = require("cors");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
+const getRawBody = require("raw-body");
 
 const app = express();
 const PORT = 3001;
 
-app.use(cors()); // Allow all origins
-app.use(express.json()); // For JSON bodies
-app.use(express.urlencoded({ extended: true })); // For form-encoded bodies
+app.use(cors());
 
-// Proxy handler for all HTTP methods
+// Custom raw body parser middleware
+app.use(async (req, res, next) => {
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method.toUpperCase())) {
+    try {
+      const length = req.headers["content-length"];
+      const encoding = "utf-8"; // fallback
+      req.rawBody = await getRawBody(req, {
+        length,
+        limit: "100mb",
+        encoding: null,
+      }); // no encoding = buffer
+    } catch (err) {
+      return res.status(400).json({
+        error: "Invalid body",
+        details: err.message,
+      });
+    }
+  }
+  next();
+});
+
+// Proxy endpoint
 app.all("/proxy", async (req, res) => {
   const targetUrl = req.query.url;
-
   if (!targetUrl) {
     return res.status(400).json({ error: "Missing 'url' query parameter" });
   }
@@ -22,28 +41,29 @@ app.all("/proxy", async (req, res) => {
     const fetchOptions = {
       method: req.method,
       headers: { ...req.headers },
+      body: undefined,
     };
 
-    // Remove host header to avoid conflict
-    delete fetchOptions.headers['host'];
+    // Clean problematic headers
+    delete fetchOptions.headers["host"];
+    delete fetchOptions.headers["content-length"]; // Let node-fetch calculate it
 
-    // For POST/PUT/PATCH methods, include the body
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method.toUpperCase())) {
-      if (req.body && Object.keys(req.body).length > 0) {
-        fetchOptions.body = JSON.stringify(req.body);
-        fetchOptions.headers["Content-Type"] = "application/json";
-      }
+    // Include raw body if available
+    console.log("Body:", req.rawBody.toString());
+    if (req.rawBody) {
+      fetchOptions.body = req.rawBody.toString();
     }
 
     const response = await fetch(targetUrl, fetchOptions);
-    const contentType = response.headers.get("content-type") || "";
 
-    // Forward the content type
+    // Forward status and content type
+    const contentType = response.headers.get("content-type") || "text/plain";
     res.set("content-type", contentType);
+    res.status(response.status);
 
-    // Stream the response
-    const data = await response.text();
-    res.status(response.status).send(data);
+    // Pipe response body
+    const body = await response.buffer();
+    res.send(body);
   } catch (err) {
     res.status(500).json({
       error: "Failed to fetch from target URL",

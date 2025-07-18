@@ -25,7 +25,12 @@ function updateToggleLabel(checkbox) {
   }
 }
 
-function setUpProxy() {
+function setUpProxy(isSetUI = false) {
+  if (isSetUI) {
+    document.getElementById("proxyInput").value = proxyURL;
+    document.getElementById("proxyToggleCheckbox").checked = proxyEnabled;
+    return;
+  }
   proxyURL = document.getElementById("proxyInput").value;
   proxyEnabled = document.getElementById("proxyToggleCheckbox").checked;
 
@@ -116,7 +121,10 @@ async function importRequestSnapshot() {
     headersListObj[tabId] = snapshot.headers || [];
     queryListObj[tabId] = snapshot.queryParams || [];
     proxyURL = snapshot.proxyURL || "";
-    proxyEnabled = !!snapshot.proxyEnabled;
+    proxyEnabled = snapshot.proxyEnabled;
+    setUpProxy(true);
+    updateToggleLabel(document.getElementById("proxyToggleCheckbox"));
+
     const contentTypeEntry = headersListObj[tabId].find(
       (h) => h.key && h.key.toLowerCase() === "content-type"
     );
@@ -130,6 +138,8 @@ async function importRequestSnapshot() {
         contentTypeValue;
       document.querySelector(`#${tabId} [data-id="body"]`).value =
         snapshot.body || "";
+      document.querySelector(`#${tabId} [data-id="contentType"]`).value =
+        contentTypeValue;
     }, 10);
     updateKeyValDisplay(displayHeaders, headersListObj[tabId]);
     updateKeyValDisplay(displayQueries, queryListObj[tabId]);
@@ -139,8 +149,8 @@ async function importRequestSnapshot() {
       `[data-id="${tabId.slice(0, -"Content".length)}"]`
     );
     const nameSpan = tabButton.querySelector('[data-id="tabNameHolder"]');
-
-    nameSpan.textContent = "Imported Tab"; // or any desired name
+    if (snapshot.tabName) nameSpan.textContent = snapshot.tabName;
+    else nameSpan.textContent = "Imported Tab"; // or any desired name
     // ✅ Optionally: trigger re-render for the selected tab
     // renderTab(tabId); // If needed in your app
   } catch (err) {
@@ -156,7 +166,11 @@ async function exportRequestSnapshot() {
   try {
     const headers = headersListObj[tabId] || [];
     const queryParams = queryListObj[tabId] || [];
-
+    const tabButton = document.querySelector(
+      `[data-id="${tabId.slice(0, -"Content".length)}"]`
+    );
+    const nameSpan = tabButton.querySelector('[data-id="tabNameHolder"]');
+    const tabName = nameSpan.textContent;
     // Build full request structure
     const requestData = {
       url,
@@ -166,6 +180,7 @@ async function exportRequestSnapshot() {
       body: bodyText,
       proxyURL,
       proxyEnabled,
+      tabName,
     };
 
     const jsonString = JSON.stringify(requestData, null, 2);

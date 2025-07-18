@@ -36,29 +36,37 @@ function collectReqHeaders() {
   headersList.forEach(({ key, value, checked }) => {
     key = key.trim();
     value = value.trim();
+    key = capitalizeHeader(key);
     if (checked && key) headers[key] = value;
   });
 
   // Set Content-Type header (override if user hasn't already)
-  if (!headers["Content-Type"] && method !== "GET" && method !== "DELETE") {
+  if (method !== "GET" && method !== "DELETE") {
     headers["Content-Type"] = contentType;
+    headersList["Content-Type"] = contentType;
   }
+  updateKeyValDisplay(displayHeaders, headersList);
 }
 
 function collectReqBody() {
   // Include body if necessary
+  let body = undefined;
   if (method !== "GET" && method !== "DELETE" && bodyText) {
     if (headers["Content-Type"] === "application/json") {
       try {
-        options.body = JSON.stringify(JSON.parse(bodyText));
+        console.log(bodyText);
+        const parsed = JSON.parse(bodyText);
+        body = JSON.stringify(parsed);
       } catch (err) {
         alert("Invalid JSON in request body!");
-        return;
+        console.log(err.message);
+        return body;
       }
     } else {
-      options.body = bodyText;
+      body = bodyText;
     }
   }
+  return body;
 }
 function collectReqQuery() {
   let queryList = queryListObj[tabId];
@@ -122,20 +130,18 @@ async function sendRequest() {
   setParams();
   getRequestParams();
   collectReqHeaders();
-  collectReqBody();
+  let body = collectReqBody();
   collectReqQuery();
   if (proxyEnabled) url = proxyURL + encodeURIComponent(url);
   console.log(bodyText);
   if (bodyText.length == 0)
     runPreview(curlPreview(url, method, headersListObj[tabId]));
-  else
-    runPreview(
-      curlPreview(url, method, headersListObj[tabId], JSON.parse(bodyText))
-    );
+  else runPreview(curlPreview(url, method, headersListObj[tabId], bodyText));
   // Prepare fetch options
   const options = {
     method,
     headers,
+    body,
   };
   console.log(method);
   try {
@@ -165,7 +171,6 @@ async function sendRequest() {
       err.toString();
   }
   headers = {};
-  url = "";
 
   const queryList = queryListObj[tabId] || [];
   queryListObj[tabId] = queryList.filter((item) => item.key !== "access_token");
@@ -260,6 +265,22 @@ function updateKeyValDisplay(displayContent, List) {
     row.appendChild(deleteBtn);
     displayContent.appendChild(row);
   });
+}
+function capitalizeHeader(header) {
+  let result = "";
+  let capitalizeNext = true;
+
+  for (let ch of header) {
+    if (ch === "-") {
+      result += ch;
+      capitalizeNext = true;
+    } else {
+      result += capitalizeNext ? ch.toUpperCase() : ch.toLowerCase();
+      capitalizeNext = false;
+    }
+  }
+
+  return result;
 }
 function includeHeader(e) {
   e.preventDefault();
@@ -454,8 +475,12 @@ function copy(textContent, copyBtn) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(textContent).then(() => {
       let copyBtnHTML = copyBtn.innerHTML;
-      copyBtn.textContent = "Copied!";
-      setTimeout(() => (copyBtn.innerHTML = copyBtnHTML), 1500);
+      copyBtn.innerHTML = "Copied!";
+
+      setTimeout(() => {
+        copyBtn.innerHTML = copyBtnHTML;
+        console.log(copyBtnHTML);
+      }, 1500);
     });
   }
 }

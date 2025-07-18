@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/THIRU-1074/RestBolt#readme",
   "dependencies": {
+    "content-type": "^1.0.5",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "raw-body": "^3.0.0"
   }
 }

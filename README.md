@@ -36,5 +36,4 @@ fetch(proxyUrl + targetUrl)
 
 Yet to Done:
 
-1. Button to export request and response as a file
-2. Support binary data (MIME)
+1. Support binary data (MIME)

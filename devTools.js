@@ -3,14 +3,13 @@ let fileInput = undefined;
 let base64Output = undefined;
 let curlOutput = undefined;
 let copyBase64 = undefined;
-let copyCURL = undefined;
 function configdevTools() {
   dropzone = document.querySelector(`#${tabId} [data-id="dropzone"]`);
   fileInput = document.querySelector(`#${tabId} [data-id="fileInput"]`);
   base64Output = document.querySelector(`#${tabId} [data-id="base64Output"]`);
   curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
   copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
-  copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
+  let copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
   const decodeBtn = document.querySelector(`#${tabId} [data-id="decodeBtn"]`);
   // Handle click to open file selector
   dropzone.addEventListener("click", () => fileInput.click());
@@ -123,7 +122,7 @@ function handleToolChange() {
   document.querySelector(`#${tabId} [data-id="UUIDGen"]`).style.display =
     value === "UUIDGen" ? "block" : "none";
 }
-function curlPreview(url, method, headersList, jsonBody = null) {
+function curlPreview(url, method, headersList, bodyString) {
   console.log(method);
   console.log(url);
   let curl = `curl -X ${String(method).toUpperCase()} "${url}"`;
@@ -138,8 +137,7 @@ function curlPreview(url, method, headersList, jsonBody = null) {
   }
 
   // Add body
-  if (jsonBody && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
-    const bodyString = JSON.stringify(jsonBody).replace(/"/g, '\\"');
+  if (bodyString && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
     curl += ` \\\n  -d "${bodyString}"`;
   }
 
