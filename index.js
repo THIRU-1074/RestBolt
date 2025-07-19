@@ -26,199 +26,6 @@ let keyValueMode = undefined;
 let bulkEditBox = undefined;
 
 let bulkEditActive = undefined;
-function collectReqHeaders() {
-  // Collect headers
-  addAuth();
-  let headersList = headersListObj[tabId];
-  headers["Access-Control-Allow-Origin"] = "*";
-  headers["Access-Control-Allow-Headers"] = "*";
-  headers["Access-Control-Expose-Headers"] = "*";
-  headersList.forEach(({ key, value, checked }) => {
-    key = key.trim();
-    value = value.trim();
-    key = capitalizeHeader(key);
-    if (checked && key) headers[key] = value;
-  });
-
-  // Set Content-Type header (override if user hasn't already)
-  if (method !== "GET" && method !== "DELETE") {
-    headers["Content-Type"] = contentType;
-    headersList["Content-Type"] = contentType;
-  }
-  updateKeyValDisplay(displayHeaders, headersList);
-}
-
-function collectReqBody() {
-  // Include body if necessary
-  let body = undefined;
-  if (method !== "GET" && method !== "DELETE" && bodyText) {
-    if (headers["Content-Type"] === "application/json") {
-      try {
-        console.log(bodyText);
-        const parsed = JSON.parse(bodyText);
-        body = JSON.stringify(parsed);
-      } catch (err) {
-        alert("Invalid JSON in request body!");
-        console.log(err.message);
-        return body;
-      }
-    } else {
-      body = bodyText;
-    }
-  }
-  return body;
-}
-function collectReqQuery() {
-  let queryList = queryListObj[tabId];
-  let queryStr = "";
-  queryList.forEach(({ key, value, checked }, index) => {
-    key = key.trim();
-    value = value.trim();
-    if (checked && key) {
-      if (queryStr) queryStr += "&"; // add ampersand if not the first param
-      queryStr += encodeURIComponent(key) + "=" + encodeURIComponent(value);
-    }
-  });
-  url += queryStr ? "?" + queryStr : "";
-}
-
-function setResHeaders(headersObj) {
-  // Set headers
-  let headersFormatted = "";
-  for (let key in headersObj) {
-    headersFormatted += `${key}: ${headersObj[key]}\n`;
-  }
-  responseHeaders.textContent = headersFormatted;
-}
-
-async function handleResponse(res) {
-  const headersObj = {};
-  res.headers.forEach((value, key) => {
-    headersObj[key] = value;
-  });
-
-  console.log(headersObj);
-  setResHeaders(headersObj);
-  const contentType = res.headers.get("content-type") || "";
-  const responseStatusDiv = document.querySelector(
-    `#${tabId} [data-id="responseStatus"]`
-  );
-  responseStatusDiv.textContent = `Status: ${res.status} ${res.statusText}`;
-  // Set background color based on status code
-  if (res.status >= 200 && res.status < 300) {
-    responseStatusDiv.style.backgroundColor = "lightgreen"; // or "green"
-  } else {
-    responseStatusDiv.style.backgroundColor = "lightcoral"; // or "red"
-  }
-
-  // Try to parse response as JSON, fallback to text
-  let body;
-  let buffer = responseObj[tabId];
-  body = new TextDecoder().decode(buffer);
-  document.querySelector(`#${tabId} [data-id="responseBody"]`).textContent =
-    body;
-}
-function getRequestParams() {
-  method = document.querySelector(`#${tabId} [data-id="method"]`).value;
-  url = document.querySelector(`#${tabId} [data-id="url"]`).value.trim();
-  contentType = document.querySelector(
-    `#${tabId} [data-id="contentType"]`
-  ).value;
-  bodyText = document.querySelector(`#${tabId} [data-id="body"]`).value.trim();
-}
-async function sendRequest() {
-  setParams();
-  getRequestParams();
-  collectReqHeaders();
-  let body = collectReqBody();
-  collectReqQuery();
-  if (proxyEnabled) url = proxyURL + encodeURIComponent(url);
-  console.log(bodyText);
-  if (bodyText.length == 0)
-    runPreview(curlPreview(url, method, headersListObj[tabId]));
-  else runPreview(curlPreview(url, method, headersListObj[tabId], bodyText));
-  // Prepare fetch options
-  const options = {
-    method,
-    headers,
-    body,
-  };
-  console.log(method);
-  try {
-    res = await fetch(url, options);
-
-    const plainHeaders = {};
-    res.headers.forEach((value, key) => {
-      plainHeaders[key] = value;
-    });
-    console.log(plainHeaders);
-    responseHeadersObj[tabId] = plainHeaders;
-    responseObj[tabId] = await res.arrayBuffer();
-    handleResponse(res);
-    const rawRadio = document.querySelector(
-      `#${tabId} input[name="viewMode"][value="raw"]`
-    );
-
-    // Set it as checked
-    rawRadio.checked = true;
-
-    // Trigger the change event manually
-    rawRadio.dispatchEvent(new Event("change", { bubbles: true }));
-  } catch (err) {
-    document.querySelector(`#${tabId} [data-id="responseStatus"]`).textContent =
-      "Error";
-    document.querySelector(`#${tabId} [data-id="responseBody"]`).textContent =
-      err.toString();
-  }
-  headers = {};
-
-  const queryList = queryListObj[tabId] || [];
-  queryListObj[tabId] = queryList.filter((item) => item.key !== "access_token");
-
-  const headersList = headersListObj[tabId] || [];
-  headersListObj[tabId] = headersList.filter(
-    (item) => item.key !== "Authorization"
-  );
-}
-
-function renderResponse(status, bodyText) {
-  // Set status
-  responseStatus.textContent = `Status: ${status}`;
-
-  // Listen for radio changes
-  const selectedMode = document.querySelector(
-    'input[name="viewMode"]:checked'
-  ).value;
-
-  if (selectedMode === "raw") {
-    responseBody.textContent = bodyText;
-    responseBody.classList.remove("hidden");
-    responseIframe.classList.add("hidden");
-  } else {
-    // Convert body to blob & object URL to load in iframe
-    const fullHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <style>
-        body { padding: 1rem; font-family: sans-serif; }
-        button { margin: 0.5rem; padding: 0.5rem 1rem; }
-      </style>
-    </head>
-    <body>
-      ${bodyText}
-    </body>
-    </html>
-  `;
-    const blob = new Blob([fullHtml], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    responseIframe.src = url;
-    responseIframe.classList.remove("hidden");
-    responseBody.classList.add("hidden");
-  }
-}
 
 function updateKeyValDisplay(displayContent, List) {
   displayContent.innerHTML = "";
@@ -353,57 +160,6 @@ function setParams() {
   keyValueMode = document.querySelector(`#${tabId} [data-id="keyValueMode"]`);
   bulkEditBox = document.querySelector(`#${tabId} [data-id="bulkEditBox"]`);
 }
-function handleAuthChange() {
-  const value = document.querySelector(`#${tabId} [data-id="authType"]`).value;
-  document.querySelector(
-    `#${tabId} [data-id="basicAuthFields"]`
-  ).style.display = value === "basic" ? "block" : "none";
-  document.querySelector(`#${tabId} [data-id="jwtAuthFields"]`).style.display =
-    value === "jwt" ? "block" : "none";
-  document.querySelector(`#${tabId} [data-id="apiKeyFields"]`).style.display =
-    value === "apikey" ? "block" : "none";
-}
-
-function handleJWT(jwtDiv) {
-  try {
-    // 1. Read user input
-    const algorithm = jwtDiv.querySelector("select").value;
-    const signature = jwtDiv.querySelector('input[type="text"]').value.trim();
-    const payloadInput = jwtDiv.querySelector("textarea").value.trim();
-    const location = jwtDiv.querySelector(
-      'input[name="jwtLocation"]:checked'
-    ).value;
-
-    // 2. Parse and encode header
-    const header = {
-      alg: algorithm,
-      typ: "JWT",
-    };
-    const encodedHeader = base64UrlEncode(JSON.stringify(header));
-
-    // 3. Parse and encode payload
-    let payload;
-    try {
-      payload = JSON.parse(payloadInput);
-    } catch (err) {
-      alert("Invalid JSON payload");
-      return null;
-    }
-    const encodedPayload = base64UrlEncode(JSON.stringify(payload));
-
-    // 4. Encode signature (use user-input as-is for demo)
-    const encodedSignature = base64UrlEncode(signature);
-
-    // 5. Construct JWT
-    const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
-
-    // 6. Return object for use in request
-    return { loc: location, token: `Bearer ${jwt}` };
-  } catch (err) {
-    console.error("JWT Handling Error:", err);
-    return null;
-  }
-}
 
 // ✅ Helper function for base64url encoding
 function base64UrlEncode(str) {
@@ -412,65 +168,7 @@ function base64UrlEncode(str) {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
 }
-function addAuth() {
-  let authObj = retrieveAuth();
-  console.log(authObj);
-  if (authObj == null) return;
-  if (authObj.loc === "query") {
-    const queryList = queryListObj[tabId] || [];
 
-    const index = queryList.findIndex((item) => item.key === "access_token");
-
-    if (index === -1) {
-      queryList.push({
-        key: "access_token",
-        value: authObj.token,
-        checked: true,
-      });
-    } else {
-      queryList[index].value = authObj.token;
-      queryList[index].checked = true;
-    }
-
-    queryListObj[tabId] = queryList;
-  } else if (authObj.loc === "header") {
-    const headersList = headersListObj[tabId] || [];
-
-    const index = headersList.findIndex((item) => item.key === "Authorization");
-
-    if (index === -1) {
-      headersList.push({
-        key: "Authorization",
-        value: authObj.token,
-        checked: true,
-      });
-    } else {
-      headersList[index].value = authObj.token;
-      headersList[index].checked = true;
-    }
-
-    headersListObj[tabId] = headersList;
-  }
-}
-function retrieveAuth() {
-  let authType = document.querySelector(`#${tabId} [data-id="authType"]`).value;
-  let authDiv = undefined;
-  if (authType == "basic") {
-    authDiv = document.querySelector(`#${tabId} [data-id="basicAuthFields"]`);
-    // Get the inputs inside it
-    const username = authDiv.querySelector('input[type="text"]').value;
-    const password = authDiv.querySelector('input[type="password"]').value;
-    const location = authDiv.querySelector(
-      'input[name="basicLocation"]:checked'
-    ).value;
-    return {
-      loc: `${location}`,
-      token: `Basic ${base64UrlEncode(`${username}:${password}`)}`,
-    };
-  } else if (authType == "jwt") {
-    return handleJWT(authDiv);
-  } else return null;
-}
 function copy(textContent, copyBtn) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(textContent).then(() => {
@@ -484,23 +182,7 @@ function copy(textContent, copyBtn) {
     });
   }
 }
-function togglePasswordVisibility(inputId, button) {
-  const input = document.querySelector(`#${tabId} [data-id=${inputId}]`);
-  const isVisible = input.type === "text";
 
-  input.type = isVisible ? "password" : "text";
-
-  const eye = button.querySelector(`#${tabId}.eye-icon`);
-  const eyeOff = button.querySelector(`#${tabId}.eye-off-icon`);
-
-  if (isVisible) {
-    eye.classList.remove("hidden");
-    eyeOff.classList.add("hidden");
-  } else {
-    eye.classList.add("hidden");
-    eyeOff.classList.remove("hidden");
-  }
-}
 // Function to parse bulk edit and return array of objects
 function parseAndBulkEdit(isAddHeader) {
   const lines = bulkEditBox.value.split("\n");
@@ -551,6 +233,39 @@ function activateTab(newTabId) {
       );
     });
   });
+  document
+    .querySelector(`#${tabId} [data-id="binaryUploadForm"]`)
+    .addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const fileInput = document.querySelector(
+        `#${tabId} [data-id="binaryFileInput"]`
+      );
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Please select a binary file.");
+        return;
+      }
+      const binaryReqBody = document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      );
+      const toggle = binaryReqBody.querySelector(` [data-id="modeSwitch"]`);
+      // Read binary file and convert to Base64 string
+      let binaryBody = undefined;
+      if (toggle.checked) binaryBody = await fileToBase64(file);
+      else binaryBody = await file.arrayBuffer();
+
+      // Example: Add to request body
+      const reqBody = {
+        filename: file.name,
+        content: binaryBody,
+        contentType: file.type || "application/octet-stream",
+      };
+
+      console.log("Request Body:", reqBody);
+      return reqBody;
+    });
   bulkEditActive = false;
   toggleButton.addEventListener("click", () => {
     bulkEditActive = !bulkEditActive;
@@ -573,6 +288,26 @@ function activateTab(newTabId) {
       indicator.textContent = "Key-Value Adder";
     }
   });
+  const binaryReqBody = document.querySelector(
+    `#${tabId} [data-id="binaryReqBody"]`
+  );
+  const toggle = binaryReqBody.querySelector(` [data-id="modeSwitch"]`);
+  const label = binaryReqBody.querySelector(` [data-id="toggleLabel"]`);
+  const knob = binaryReqBody.querySelector(` [data-id="switchKnob"]`);
+  const track = binaryReqBody.querySelector(` [data-id="switchTrack"]`);
+  toggle.addEventListener("change", () => {
+    if (toggle.checked) {
+      knob.style.transform = "translateX(20px)";
+      track.classList.remove("bg-blue-500");
+      track.classList.add("bg-green-500");
+      label.textContent = "Base64 Encode";
+    } else {
+      knob.style.transform = "translateX(0px)";
+      track.classList.remove("bg-green-500");
+      track.classList.add("bg-blue-500");
+      label.textContent = "Raw Binary";
+    }
+  });
   let copyResponse = document.querySelector(
     `#${tabId} [data-id="copyResponse"]`
   );
@@ -586,4 +321,73 @@ function activateTab(newTabId) {
   addQueryBtn.addEventListener("click", includeQuery);
 
   configdevTools();
+}
+function handleBodyTypeChange() {
+  const value = document.querySelector(
+    `#${tabId} [data-id="contentType"]`
+  ).value;
+  switch (value) {
+    case "application/json": {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "block";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "none";
+      break;
+    }
+    case "text/plain": {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "block";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "none";
+      break;
+    }
+    case "application/x-www-form-urlencoded": {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "block";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "none";
+      break;
+    }
+    case "multipart/form-data": {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "block";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "none";
+      break;
+    }
+    case "binary": {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "none";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "block";
+      break;
+    }
+    default: {
+      document.querySelector(`#${tabId} [data-id="body"]`).style.display =
+        "block";
+      document.querySelector(
+        `#${tabId} [data-id="binaryReqBody"]`
+      ).style.display = "block";
+    }
+  }
+}
+
+// Helper to convert binary file to base64 string
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const base64 = reader.result.split(",")[1]; // Strip "data:;base64,"
+      resolve(base64);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file); // reads and encodes as Base64
+  });
 }

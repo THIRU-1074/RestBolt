@@ -3,12 +3,14 @@ let fileInput = undefined;
 let base64Output = undefined;
 let curlOutput = undefined;
 let copyBase64 = undefined;
+let UnixTimeConv = undefined;
 function configdevTools() {
   dropzone = document.querySelector(`#${tabId} [data-id="dropzone"]`);
   fileInput = document.querySelector(`#${tabId} [data-id="fileInput"]`);
   base64Output = document.querySelector(`#${tabId} [data-id="base64Output"]`);
   curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
   copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
+  UnixTimeConv = document.querySelector(`#${tabId} [data-id="UnixTimeConv"]`);
   let copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
   const decodeBtn = document.querySelector(`#${tabId} [data-id="decodeBtn"]`);
   // Handle click to open file selector
@@ -53,10 +55,10 @@ function configdevTools() {
   );
   const output = document.querySelector(`#${tabId} [data-id="output"]`);
   const convertBtn = document.querySelector(`#${tabId} [data-id="convertBtn"]`);
-  const toggle = document.querySelector(`#${tabId} [data-id="modeSwitch"]`);
-  const label = document.querySelector(`#${tabId} [data-id="toggleLabel"]`);
-  const knob = document.querySelector(`#${tabId} [data-id="switchKnob"]`);
-  const track = document.querySelector(`#${tabId} [data-id="switchTrack"]`);
+  const toggle = UnixTimeConv.querySelector(` [data-id="modeSwitch"]`);
+  const label = UnixTimeConv.querySelector(` [data-id="toggleLabel"]`);
+  const knob = UnixTimeConv.querySelector(` [data-id="switchKnob"]`);
+  const track = UnixTimeConv.querySelector(` [data-id="switchTrack"]`);
   toggle.addEventListener("change", () => {
     if (toggle.checked) {
       knob.style.transform = "translateX(20px)";

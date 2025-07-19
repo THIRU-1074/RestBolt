@@ -378,6 +378,7 @@ Prepend // to any row you want to add but keep disabled"
               <select
                 data-id="contentType"
                 class="border rounded px-3 py-2 w-full mb-2"
+                onchange="handleBodyTypeChange()"
               >
                 <option value="application/json">application/json</option>
                 <option value="text/plain">text/plain</option>
@@ -385,14 +386,66 @@ Prepend // to any row you want to add but keep disabled"
                   application/x-www-form-urlencoded
                 </option>
                 <option value="multipart/form-data">multipart/form-data</option>
+                <option value="binary">Binary</option>
                 <option value="None" selected>None</option>
               </select>
+              <!--Bulk text Request body-->
               <textarea
                 data-id="body"
                 rows="5"
-                class="w-full border rounded px-3 py-2 text-sm font-mono"
+                class="w-full border rounded px-3 py-2 text-sm font-mono hidden"
                 placeholder='{"key": "value"}'
               ></textarea>
+              <!--Binary Request Body File-->
+              <div
+                class="bg-white shadow-lg p-8 rounded-xl w-full max-w-md hidden"
+                data-id="binaryReqBody"
+              >
+                <h2 class="text-2xl font-bold text-blue-600 mb-4 text-center">
+                  Upload Binary File
+                </h2>
+                <!--Toggle Button-->
+                <div class="flex items-center justify-center gap-4">
+                  <span data-id="toggleLabel" class="text-sm font-medium"
+                    >Raw Binary</span
+                  >
+
+                  <!-- Toggle switch -->
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      data-id="modeSwitch"
+                      type="checkbox"
+                      class="sr-only"
+                    />
+                    <div
+                      data-id="switchTrack"
+                      class="w-11 h-6 bg-blue-500 rounded-full transition-colors relative"
+                    >
+                      <div
+                        data-id="switchKnob"
+                        class="absolute top-[2px] left-[2px] w-5 h-5 bg-white rounded-full transition-all transform"
+                      ></div>
+                    </div>
+                  </label>
+                </div>
+                <form data-id="binaryUploadForm" class="flex flex-col gap-4">
+                  <input
+                    type="file"
+                    data-id="binaryFileInput"
+                    accept=".bin,.dat"
+                    class="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                  />
+
+                  <button
+                    type="submit"
+                    class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+                  >
+                    Upload & Convert
+                  </button>
+                </form>
+              </div>
             </div>
 
             <!-- Response -->
@@ -839,8 +892,6 @@ Prepend // to any row you want to add but keep disabled"
                       ></div>
                     </div>
                   </label>
-
-                  <span class="text-sm font-medium">UTC ➝ Unix</span>
                 </div>
 
                 <!-- Input Section -->
@@ -943,6 +994,9 @@ Prepend // to any row you want to add but keep disabled"
     <script src="Menu.js"></script>
     <script src="devTools.js"></script>
     <script src="index.js"></script>
+    <script src="requestGenerator.js"></script>
+    <script src="responseHandler.js"></script>
+    <script src="auth.js"></script>
     <script src="tabs.js"></script>
   </body>
 </html>
