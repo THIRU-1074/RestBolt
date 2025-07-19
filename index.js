@@ -367,12 +367,13 @@ function handleBodyTypeChange() {
       ).style.display = "block";
       break;
     }
-    default: {
+    case "None": {
       document.querySelector(`#${tabId} [data-id="body"]`).style.display =
-        "block";
+        "none";
       document.querySelector(
         `#${tabId} [data-id="binaryReqBody"]`
-      ).style.display = "block";
+      ).style.display = "none";
+      break;
     }
   }
 }
