@@ -124,7 +124,7 @@ function handleToolChange() {
   document.querySelector(`#${tabId} [data-id="UUIDGen"]`).style.display =
     value === "UUIDGen" ? "block" : "none";
 }
-function curlPreview(url, method, headersList, bodyString) {
+function curlPreview(url, method, headersList, bodyData) {
   console.log(method);
   console.log(url);
   let curl = `curl -X ${String(method).toUpperCase()} "${url}"`;
@@ -139,8 +139,11 @@ function curlPreview(url, method, headersList, bodyString) {
   }
 
   // Add body
-  if (bodyString && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
-    curl += ` \\\n  -d "${bodyString}"`;
+  if (bodyData && ["POST", "PUT", "PATCH"].includes(method.toUpperCase())) {
+    if (bodyData instanceof ArrayBuffer) {
+      let dataString = arrayBufferToHex(bodyData);
+      curl += ` \\\n  --data-binary $'${dataString}'`;
+    } else curl += ` \\\n  -d "${bodyData}"`;
   }
 
   return curl;

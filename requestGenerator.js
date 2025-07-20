@@ -60,7 +60,19 @@ function getRequestParams() {
   contentType = document.querySelector(
     `#${tabId} [data-id="contentType"]`
   ).value;
-  bodyText = document.querySelector(`#${tabId} [data-id="body"]`).value.trim();
+  if (contentType == "binary") {
+    if (binaryReqBodyObj == undefined) {
+      alert("Please upload a File for Request Body...!");
+      bodyText = "";
+      return;
+    }
+    contentType = binaryReqBodyObj.contentType;
+    bodyText = binaryBodyContent;
+  } else {
+    bodyText = document
+      .querySelector(`#${tabId} [data-id="body"]`)
+      .value.trim();
+  }
 }
 async function sendRequest() {
   setParams();

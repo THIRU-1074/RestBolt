@@ -8,6 +8,8 @@ let queryListObj = {};
 let responseObj = {};
 let url = undefined;
 let tabId = undefined;
+let binaryReqBodyObj = undefined;
+let binaryBodyContent = undefined;
 
 let radioButtons = undefined;
 let responseBody = undefined;
@@ -252,19 +254,17 @@ function activateTab(newTabId) {
       );
       const toggle = binaryReqBody.querySelector(` [data-id="modeSwitch"]`);
       // Read binary file and convert to Base64 string
-      let binaryBody = undefined;
-      if (toggle.checked) binaryBody = await fileToBase64(file);
-      else binaryBody = await file.arrayBuffer();
+
+      if (toggle.checked) binaryBodyContent = await fileToBase64(file);
+      else binaryBodyContent = await file.arrayBuffer();
 
       // Example: Add to request body
-      const reqBody = {
+      binaryReqBodyObj = {
         filename: file.name,
-        content: binaryBody,
         contentType: file.type || "application/octet-stream",
       };
 
-      console.log("Request Body:", reqBody);
-      return reqBody;
+      console.log("Request Body:", binaryReqBodyObj);
     });
   bulkEditActive = false;
   toggleButton.addEventListener("click", () => {
@@ -391,4 +391,11 @@ function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file); // reads and encodes as Base64
   });
+}
+
+function arrayBufferToHex(ab) {
+  const arr = new Uint8Array(ab);
+  return Array.from(arr)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
