@@ -10,6 +10,7 @@ let url = undefined;
 let tabId = undefined;
 let binaryReqBodyObj = undefined;
 let binaryBodyContent = undefined;
+let body = undefined;
 
 let radioButtons = undefined;
 let responseBody = undefined;
@@ -256,7 +257,9 @@ function activateTab(newTabId) {
       // Read binary file and convert to Base64 string
 
       if (toggle.checked) binaryBodyContent = await fileToBase64(file);
-      else binaryBodyContent = await file.arrayBuffer();
+      else {
+        binaryBodyContent = file;
+      }
 
       // Example: Add to request body
       binaryReqBodyObj = {
@@ -398,4 +401,15 @@ function arrayBufferToHex(ab) {
   return Array.from(arr)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    // Create file reader
+    let reader = new FileReader();
+    // Register event listeners
+    reader.addEventListener("loadend", (e) => resolve(e.target.result));
+    reader.addEventListener("error", reject);
+    // Read file
+    reader.readAsArrayBuffer(file);
+  });
 }

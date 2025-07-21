@@ -22,7 +22,6 @@ function collectReqHeaders() {
 
 function collectReqBody() {
   // Include body if necessary
-  let body = undefined;
   if (method !== "GET" && method !== "DELETE" && bodyText) {
     if (headers["Content-Type"] === "application/json") {
       try {
@@ -32,13 +31,11 @@ function collectReqBody() {
       } catch (err) {
         alert("Invalid JSON in request body!");
         console.log(err.message);
-        return body;
       }
     } else {
       body = bodyText;
     }
   }
-  return body;
 }
 function collectReqQuery() {
   let queryList = queryListObj[tabId];
@@ -67,7 +64,7 @@ function getRequestParams() {
       return;
     }
     contentType = binaryReqBodyObj.contentType;
-    bodyText = binaryBodyContent;
+    body = binaryBodyContent;
   } else {
     bodyText = document
       .querySelector(`#${tabId} [data-id="body"]`)
@@ -76,10 +73,10 @@ function getRequestParams() {
 }
 async function sendRequest() {
   setParams();
-  getRequestParams();
   collectReqHeaders();
-  let body = collectReqBody();
+  collectReqBody();
   collectReqQuery();
+  getRequestParams();
   if (proxyEnabled) url = proxyURL + encodeURIComponent(url);
   console.log(bodyText);
   if (bodyText.length == 0)
