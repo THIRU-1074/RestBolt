@@ -116,7 +116,7 @@ async function sendRequest() {
       err.toString();
   }
   headers = {};
-
+  url = document.querySelector(`#${tabId} [data-id="url"]`).value.trim();
   const queryList = queryListObj[tabId] || [];
   queryListObj[tabId] = queryList.filter((item) => item.key !== "access_token");
 

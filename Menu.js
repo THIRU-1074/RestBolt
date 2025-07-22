@@ -125,10 +125,6 @@ async function importRequestSnapshot() {
     setUpProxy(true);
     updateToggleLabel(document.getElementById("proxyToggleCheckbox"));
 
-    const contentTypeEntry = headersListObj[tabId].find(
-      (h) => h.key && h.key.toLowerCase() === "content-type"
-    );
-
     const contentTypeValue = contentTypeEntry?.value || "";
     setTimeout(() => {
       document.querySelector(`#${tabId} [data-id="method"]`).value =
@@ -139,7 +135,7 @@ async function importRequestSnapshot() {
       document.querySelector(`#${tabId} [data-id="body"]`).value =
         snapshot.body || "";
       document.querySelector(`#${tabId} [data-id="contentType"]`).value =
-        contentTypeValue;
+        snapshot.contentType || "None";
     }, 10);
     updateKeyValDisplay(displayHeaders, headersListObj[tabId]);
     updateKeyValDisplay(displayQueries, queryListObj[tabId]);
@@ -177,7 +173,8 @@ async function exportRequestSnapshot() {
       method,
       headers, // includes { key, value, checked }
       queryParams, // includes { key, value, checked }
-      body: bodyText,
+      contentType,
+      body,
       proxyURL,
       proxyEnabled,
       tabName,
