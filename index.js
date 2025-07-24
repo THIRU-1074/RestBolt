@@ -322,8 +322,6 @@ function activateTab(newTabId) {
     .addEventListener("click", sendRequest);
   addHeaderBtn.addEventListener("click", includeHeader);
   addQueryBtn.addEventListener("click", includeQuery);
-
-  configdevTools();
 }
 function handleBodyTypeChange() {
   const value = document.querySelector(

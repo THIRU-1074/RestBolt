@@ -7,6 +7,7 @@ const defaultContent = tab1Content.cloneNode(true);
 
 activateTab("tab" + tabCount);
 switchTab("tab" + tabCount);
+configdevTools();
 function switchTab(tabID) {
   tabId = tabID + "Content";
   setParams();
@@ -68,6 +69,7 @@ function addNewTab() {
   tabContents.appendChild(tabContent);
   activateTab(newTabId);
   switchTab(newTabId);
+  configdevTools();
 }
 document.getElementById("addTab").addEventListener("click", addNewTab);
 

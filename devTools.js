@@ -1,16 +1,14 @@
-let dropzone = undefined;
-let fileInput = undefined;
-let base64Output = undefined;
-let curlOutput = undefined;
-let copyBase64 = undefined;
-let UnixTimeConv = undefined;
 function configdevTools() {
-  dropzone = document.querySelector(`#${tabId} [data-id="dropzone"]`);
-  fileInput = document.querySelector(`#${tabId} [data-id="fileInput"]`);
-  base64Output = document.querySelector(`#${tabId} [data-id="base64Output"]`);
-  curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
-  copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
-  UnixTimeConv = document.querySelector(`#${tabId} [data-id="UnixTimeConv"]`);
+  let dropzone = document.querySelector(`#${tabId} [data-id="dropzone"]`);
+  let fileInput = document.querySelector(`#${tabId} [data-id="fileInput"]`);
+  let base64Output = document.querySelector(
+    `#${tabId} [data-id="base64Output"]`
+  );
+  let curlOutput = document.querySelector(`#${tabId} [data-id="curlOutput"]`);
+  let UnixTimeConv = document.querySelector(
+    `#${tabId} [data-id="UnixTimeConv"]`
+  );
+  let copyBase64 = document.querySelector(`#${tabId} [data-id="copyBase64"]`);
   let copyCURL = document.querySelector(`#${tabId} [data-id="copyCURL"]`);
   const decodeBtn = document.querySelector(`#${tabId} [data-id="decodeBtn"]`);
   // Handle click to open file selector
@@ -167,6 +165,9 @@ function runPreview(curlStr = null) {
 // Convert image to base64
 function convertToBase64(file) {
   const reader = new FileReader();
+  const base64Output = document.querySelector(
+    `#${tabId} [data-id="base64Output"]`
+  );
   reader.onload = () => {
     base64Output.value = reader.result;
   };
